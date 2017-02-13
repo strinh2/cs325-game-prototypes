@@ -201,16 +201,18 @@ window.onload = function() {
                 // also randomize the speed
                 hunter.body.velocity.y = game.rnd.integerInRange(30, 60);
                 hunter.body.velocity.x = game.rnd.integerInRange(30, 60);
-                //hunters.forEachAlive(function (hunter) {
+                hunters.forEachAlive(function (hunter) {
                     // put every living enemy in an array
-                    //livingHunters.push(hunter);
-                //});
+                    livingHunters.push(hunter);
+                });
                 hunter.alive = true;
                 hunter.setHealth(2);
             }
-            
-            // Accelerate the 'hunters' sprite towards the cursor
-            hunters.rotation = game.physics.arcade.accelerateToObject(hunters, player, 50, 50, 50);             
+            // Accelerate the hunters towards the player
+            for (var i = 0; i < livingHunters.length; i++) {
+                livingHunters[i].rotation = game.physics.arcade.accelerateToObject(livingHunters[i], player, 100, 100, 100);
+            }
+            //hunters.rotation = game.physics.arcade.accelerateToObject(hunters, player, 50, 50, 50);             
             
             game.input.keyboard.addKeyCapture(Phaser.Keyboard.UP);
             game.input.keyboard.addKeyCapture(Phaser.Keyboard.DOWN);
@@ -257,8 +259,8 @@ window.onload = function() {
             }
 
             //  Run collisions
-            //game.physics.arcade.overlap(hunters, player, collision, null, this);
-            //game.physics.arcade.overlap(bullets, hunters, shotEnemy, null, this);
+            game.physics.arcade.overlap(hunters, player, collision, null, this);
+            game.physics.arcade.overlap(bullets, hunters, shotEnemy, null, this);
             //game.physics.arcade.overlap(hunterBullets, player, hitPlayer, null, this);
             //Update Health
             if (player.health <= 20) {
@@ -267,8 +269,7 @@ window.onload = function() {
             else if (player.health <= 60) {
                 shieldText.addColor("#ffff00", 0);
             }
-            shieldText.setText(shield + player.health);
-            
+            shieldText.setText(shield + player.health);            
         }
     }
 
@@ -326,9 +327,9 @@ window.onload = function() {
         bullet.kill();
     }
 
-    function collision(hunters, player) {
+    function collision(hunter, player) {
         player.damage(20);
-        hunters.kill();
+        hunter.kill();
     }
 
     function shotEnemy(bullet, hunters) {
