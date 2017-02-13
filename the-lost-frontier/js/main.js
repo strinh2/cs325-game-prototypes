@@ -23,7 +23,8 @@ window.onload = function() {
         game.load.image('hunterBullet', 'assets/hunterBullet.png');
         game.load.image('background', 'assets/space_small.jpg');
         game.load.image('bullet', 'assets/bullet_small.png');
-        game.load.image('player', 'assets/spaceship1.png');
+        //game.load.image('player', 'assets/spaceship1.png');
+        game.load.atlasJSONHash('player', 'spaceship_Spriteshet.png', 'spaceship.json');
         game.load.image('player_med', 'assets/spaceship1_lowHealth.png');
         game.load.image('player_low', 'assets/spaceship1_noHealth.png');
         game.load.image('planet', 'assets/planet.jpg');
@@ -85,7 +86,8 @@ window.onload = function() {
         hunterBullets.setAll('checkWorldBounds', true);
 
         //The player
-        player = game.add.sprite(100, 200, 'player');
+        player = game.add.sprite(150, 60, 'player');
+        player.frame = 0;
         player.anchor.setTo(0.5, 0.5);
         game.physics.enable(player, Phaser.Physics.ARCADE);
         player.body.collideWorldBounds = false;
@@ -177,7 +179,6 @@ window.onload = function() {
         }
 
         
-
         
         if (player.alive) {
             //fix camera to follow player
@@ -210,7 +211,7 @@ window.onload = function() {
             }
             // Accelerate the hunters towards the player
             for (var i = 0; i < livingHunters.length; i++) {
-                livingHunters[i].rotation = game.physics.arcade.accelerateToObject(livingHunters[i], player, 100, 100, 100);
+                livingHunters[i].rotation = game.physics.arcade.accelerateToObject(livingHunters[i], player, 75, 75, 75);
             }
             //hunters.rotation = game.physics.arcade.accelerateToObject(hunters, player, 50, 50, 50);             
             
@@ -259,7 +260,7 @@ window.onload = function() {
             }
 
             //  Run collisions
-            game.physics.arcade.overlap(hunters, player, collision, null, this);
+            game.physics.arcade.overlap(player, hunters, collisionDetect, null, this);
             game.physics.arcade.overlap(bullets, hunters, shotEnemy, null, this);
             //game.physics.arcade.overlap(hunterBullets, player, hitPlayer, null, this);
             //Update Health
@@ -327,17 +328,18 @@ window.onload = function() {
         bullet.kill();
     }
 
-    function collision(hunter, player) {
-        player.damage(20);
+    function collisionDetect(player, hunter) {
+        //Kills hunter and player without damaging 
         hunter.kill();
+        player.damage(20);
     }
 
     function shotEnemy(bullet, hunters) {
         bullet.kill();
-        //For some reason damage/health dont work for the enemies:/
+        //For some reason damage/health dont work for the enemies:/ ...randomly started working??
         hunters.damage(1);
 
-        //  Create an Explosion on impact
+        //  Create an Explosion on every impact    //Adapted from Invaders example
         var explosion = explosions.getFirstExists(false);
         explosion.reset(hunters.body.x, hunters.body.y);
         explosion.play('explosion', 30, false, true);
