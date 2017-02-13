@@ -38,7 +38,7 @@ window.onload = function() {
     var bulletTime = 0;
     var hunterBullets;
     var hunterShootTimer = 0;
-    var enemyBullet;
+    //var enemyBullet;
     var firingTimer = 0;
 
     var explosions;
@@ -49,7 +49,8 @@ window.onload = function() {
     var outputText;
 
     var nextHunterAt;
-    var enemyDelay;
+    var hunterDelay;
+    var livingHunters = [];
 
     var planet;
     var nextPlanetAt;
@@ -83,7 +84,7 @@ window.onload = function() {
         hunterBullets.setAll('outOfBoundsKill', true);
         hunterBullets.setAll('checkWorldBounds', true);
 
-        //The player.
+        //The player
         player = game.add.sprite(100, 200, 'player');
         player.anchor.setTo(0.5, 0.5);
         game.physics.enable(player, Phaser.Physics.ARCADE);
@@ -93,11 +94,19 @@ window.onload = function() {
         player.setHealth(100);
         //player.animations.add('explosion', [0,1,2,3,4,5,6,7,8,9,10,11,12,13],);
 
-        //The enemy space hunters
-        //hunters = game.add.group();
-        //hunters.enableBody = true;
-        //hunters.physicsBodyType = Phaser.Physics.ARCADE;
-        createhunters();          
+        //Create the hunters. Adapted from the tutorial https://leanpub.com/html5shootemupinanafternoon/read#leanpub-auto-enemy-sprite-group
+        hunters = game.add.group();
+        hunters.enableBody = true;
+        hunters.physicsBodyType = Phaser.Physics.ARCADE;
+        hunters.createMultiple(50, 'hunters');
+        hunters.setAll('anchor.x', 0.5);
+        hunters.setAll('anchor.y', 0.5);
+        hunters.setAll('checkWorldBounds', true);
+        //livingHunters.length = 0;
+
+        nextHunterAt = 0;
+        hunterDelay = 10000;
+        //spawnHunters();          
         
         
 
@@ -130,20 +139,10 @@ window.onload = function() {
         unit.animations.add('explosion');
     }
 
-    //Create the hunters. Adapted from https://leanpub.com/html5shootemupinanafternoon/read#leanpub-auto-enemy-sprite-group
-    function createhunters() {
-    
-        //hunters = game.add.group();
-        game.physics.enable(hunters, Phaser.Physics.ARCADE);
-        hunters.createMultiple(50, 'hunters');
-        hunters.setAll('anchor.x', 0.5);
-        hunters.setAll('anchor.y', 0.5);
-        hunters.setAll('checkWorldBounds', true);
-        //hunters.alive = true;
-        //hunters.setHealth(2);
-        
-        nextHunterAt = 0;
-        hunterDelay = 10000;
+    //Create the hunters. Adapted from the tutorial https://leanpub.com/html5shootemupinanafternoon/read#leanpub-auto-enemy-sprite-group
+    function spawnHunters() {
+
+       
         
     /**
         for (var y = 0; y < 3; y++) {
@@ -177,8 +176,7 @@ window.onload = function() {
             pln.body.velocity.y = this.rnd.integerInRange(30, 60);
         }
 
-        // Accelerate the 'hunters' sprite towards the cursor
-        //hunters.rotation = game.physics.arcade.accelerateToObject(hunters, player, 50, 50, 50);             
+        
 
         
         if (player.alive) {
@@ -194,17 +192,25 @@ window.onload = function() {
             //  Scroll the background
             background.tilePosition.x += -0.5;
 
-            //Spawn hunters
-            /**if (nextHunterAt < this.time.now && hunters.countDead() > 0) {
-                this.nextHunterAt = this.time.now + this.hunterDelay;
-                var hunter = this.hunters.getFirstExists(false);
+            //Spawn hunters  //Adapted from the tutorial: https://leanpub.com/html5shootemupinanafternoon/read#leanpub-auto-enemy-sprite-group
+            if (nextHunterAt < game.time.now && hunters.countDead() >= 0) {
+                nextHunterAt = game.time.now + hunterDelay;
+                var hunter = hunters.getFirstExists(false);
                 // spawn at a random location top of the screen
-                hunter.reset(this.rnd.integerInRange(20, 780), 0);
+                hunter.reset(game.rnd.integerInRange(20, 780), 0);
                 // also randomize the speed
-                hunter.body.velocity.y = this.rnd.integerInRange(30, 60);
-                hunter.body.velocity.x = this.rnd.integerInRange(30, 60);
+                hunter.body.velocity.y = game.rnd.integerInRange(30, 60);
+                hunter.body.velocity.x = game.rnd.integerInRange(30, 60);
+                //hunters.forEachAlive(function (hunter) {
+                    // put every living enemy in an array
+                    //livingHunters.push(hunter);
+                //});
+                hunter.alive = true;
+                hunter.setHealth(2);
             }
-            **/
+            
+            // Accelerate the 'hunters' sprite towards the cursor
+            hunters.rotation = game.physics.arcade.accelerateToObject(hunters, player, 50, 50, 50);             
             
             game.input.keyboard.addKeyCapture(Phaser.Keyboard.UP);
             game.input.keyboard.addKeyCapture(Phaser.Keyboard.DOWN);
