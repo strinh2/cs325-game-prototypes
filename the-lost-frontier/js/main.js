@@ -15,7 +15,7 @@ window.onload = function() {
     
     var game = new Phaser.Game( 1200, 800, Phaser.AUTO, 'game', { preload: preload, create: create, update: update } );
     
-    //To do list: Health for enemies, numerous enemies, exhaust/varying ship images
+    //To do list: player explosions, exhaust/varying ship images
 
     function preload() {
         // Load the assets to be used in game.
@@ -24,9 +24,10 @@ window.onload = function() {
         game.load.image('background', 'assets/space_small.jpg');
         game.load.image('bullet', 'assets/bullet_small.png');
         //game.load.image('player', 'assets/spaceship1.png');
-        game.load.atlasJSONHash('player', 'spaceship_Spriteshet.png', 'spaceship.json');
-        game.load.image('player_med', 'assets/spaceship1_lowHealth.png');
-        game.load.image('player_low', 'assets/spaceship1_noHealth.png');
+        //game.load.atlasJSONHash('player', 'spaceship_Spriteshet.png', 'spaceship.json');
+        game.load.spritesheet('player', 'assets/spaceship_Spritesheet', 50, 60);
+        //game.load.image('player_med', 'assets/spaceship1_lowHealth.png');
+        //game.load.image('player_low', 'assets/spaceship1_noHealth.png');
         game.load.image('planet', 'assets/planet.jpg');
         game.load.spritesheet('explosion', 'assets/explosion3.png',127,127);
     }
@@ -52,6 +53,12 @@ window.onload = function() {
     var nextHunterAt;
     var hunterDelay;
     var livingHunters = [];
+
+    var score = 0;
+    var scoreText;
+    var scoreString;
+
+    var gameText;
 
     var planet;
     var nextPlanetAt;
@@ -86,7 +93,7 @@ window.onload = function() {
         hunterBullets.setAll('checkWorldBounds', true);
 
         //The player
-        player = game.add.sprite(150, 60, 'player');
+        player = game.add.sprite(50, 60, 'player');
         player.frame = 0;
         player.anchor.setTo(0.5, 0.5);
         game.physics.enable(player, Phaser.Physics.ARCADE);
@@ -94,7 +101,7 @@ window.onload = function() {
         player.body.allowRotation = true;
         player.alive = true;
         player.setHealth(100);
-        //player.animations.add('explosion', [0,1,2,3,4,5,6,7,8,9,10,11,12,13],);
+        player.animations.add('explosion');
 
         //Create the hunters. Adapted from the tutorial https://leanpub.com/html5shootemupinanafternoon/read#leanpub-auto-enemy-sprite-group
         hunters = game.add.group();
@@ -107,27 +114,23 @@ window.onload = function() {
         //livingHunters.length = 0;
 
         nextHunterAt = 0;
-        hunterDelay = 10000;
-        //spawnHunters();          
+        hunterDelay = 10000;            
         
-        
-
-        //shieldboard
-        shield = 'Shields: ';
-        
-        shieldText = game.add.text(10, 10, shield + player.health, { font: '34px Arial', fill: '#0cf943' });
+        //Shieldboard
+        shield = 'Shields: ';        
+        shieldText = game.add.text(10, 10, shield + player.health, { font: '32px Arial', fill: '#00ffff' });
         shieldText.visible = true;
         
-        
-        //stateText = game.add.text(game.world.centerX, game.world.centerY, ' ', { font: '84px Arial', fill: '#fff' });
-        //stateText.anchor.setTo(0.5, 0.5);
-        //stateText.visible = false;                    
+        //Scoreboard
+        scoreString = 'Score: ';
+        scoreText = game.add.text(10, 10, scoreString + score, { font: '32px Arial', fill: '#fff' });
+        scoreText.anchor.setTo(-8.5, 0.0);
+        scoreText.visible = true;
 
-        // Add some text using a CSS style.
-        // Center it in X, and position its top 15 pixels from the top of the world.
-        var style = { font: "25px Verdana", fill: "#9999ff", align: "center" };
-        var text = game.add.text( game.world.centerX, 15, "Build something amazing.", style );
-        text.anchor.setTo(0.5, 0.0);
+        gameText = game.add.text(game.world.centerX, game.world.centerY, ' ', { font: '80px Arial', fill: '#fff' });
+        gameText.anchor.setTo(0.5, 0.5);
+        gameText.visible = false;
+
 
         //Explosions
         explosions = game.add.group();
@@ -203,7 +206,7 @@ window.onload = function() {
                 hunter.body.velocity.y = game.rnd.integerInRange(30, 60);
                 hunter.body.velocity.x = game.rnd.integerInRange(30, 60);
                 hunters.forEachAlive(function (hunter) {
-                    // put every living enemy in an array
+                    // put every living hunter in an array
                     livingHunters.push(hunter);
                 });
                 hunter.alive = true;
@@ -211,7 +214,7 @@ window.onload = function() {
             }
             // Accelerate the hunters towards the player
             for (var i = 0; i < livingHunters.length; i++) {
-                livingHunters[i].rotation = game.physics.arcade.accelerateToObject(livingHunters[i], player, 75, 75, 75);
+                livingHunters[i].rotation = game.physics.arcade.accelerateToObject(livingHunters[i], player, 55, 55, 55);
             }
             //hunters.rotation = game.physics.arcade.accelerateToObject(hunters, player, 50, 50, 50);             
             
@@ -256,13 +259,8 @@ window.onload = function() {
             }
              
             if (game.time.now > hunterShootTimer) {
-                //hunterShoot(hunters);
+                hunterShoot();
             }
-
-            //  Run collisions
-            game.physics.arcade.overlap(player, hunters, collisionDetect, null, this);
-            game.physics.arcade.overlap(bullets, hunters, shotEnemy, null, this);
-            //game.physics.arcade.overlap(hunterBullets, player, hitPlayer, null, this);
             //Update Health
             if (player.health <= 20) {
                 shieldText.addColor("#ff0000", 0);
@@ -270,40 +268,36 @@ window.onload = function() {
             else if (player.health <= 60) {
                 shieldText.addColor("#ffff00", 0);
             }
-            shieldText.setText(shield + player.health);            
+            shieldText.setText(shield + player.health);
+
+            //  Run collisions
+            game.physics.arcade.overlap(player, hunters, collisionDetect, null, this);
+            game.physics.arcade.overlap(bullets, hunters, shotEnemy, null, this);
+            game.physics.arcade.overlap(player, hunterBullets, shotPlayer, null, this);
+                    
         }
     }
 
-    function hunterShoot(hunter) {
-
-        //  Grab the first bullet we can from the pool
-        //var hunterBullet = hunterBullets.getFirstExists(false);
-
-        // And fire the bullet from this enemy
-        //hunterBullet.reset(hunter.body.x, hunter.body.y);
-
-        //game.physics.arcade.moveToObject(hunterBullet, player, 120);
-        //hunterFireTimer = game.time.now + 2000;
-
-        /** 
-        livingEnemies.length = 0;
-
-        aliens.forEachAlive(function (alien) {
-
+    //Adapted from the space invaders example
+    function hunterShoot() {
+        
+        var hunterBullet = hunterBullets.getFirstExists(false);
+        //update the hunter's array before shooting to make sure dead men don't shoot:)
+        livingHunters.length = 0;
+        livingHunters = [];
+        hunters.forEachAlive(function (hunter) {
             // put every living enemy in an array
-            livingEnemies.push(alien);
+            livingHunters.push(hunter);
         });
+        if (hunterBullet && livingHunters.length > 0) {
+            var randomHunter = game.rnd.integerInRange(0, livingHunters.length - 1);
+            var shooter = livingHunters[randomHunter];
+            // And fire the bullet from this enemy
+            hunterBullet.reset(shooter.body.x, shooter.body.y + 1.5);
 
-
-        if (enemyBullet && livingEnemies.length > 0) {
-
-            var random = game.rnd.integerInRange(0, livingEnemies.length - 1);
-
-            // randomly select one of them
-            var shooter = livingEnemies[random];
-            
+            game.physics.arcade.moveToObject(hunterBullet, player, 150);
+            hunterShootTimer = game.time.now + 1500;
         }
-        **/
     }
 
     function fireBullet() {
@@ -311,7 +305,6 @@ window.onload = function() {
         if (game.time.now > bulletTime) {
             //  Grab the first bullet we can from the pool
             var bullet = bullets.getFirstExists(false);
-
             if (bullet) {
                 //  And fire it
                 bullet.reset(player.x, player.y + 8);
@@ -329,20 +322,70 @@ window.onload = function() {
     }
 
     function collisionDetect(player, hunter) {
-        //Kills hunter and player without damaging 
+        //Kills hunter and damages player.
         hunter.kill();
-        player.damage(20);
+        player.damage(20);        
+
+        //  Increase the score
+        score += 1;
+        scoreText.text = scoreString + score;
+
+        //Alien ship explodes on impact
+        var explosion = explosions.getFirstExists(false);
+        explosion.reset(hunter.body.x, hunter.body.y);
+        explosion.play('explosion', 30, false, true);
+
+        if (score >= 50) {
+            scoreText.text = scoreString + score;
+
+            hunterBullets.callAll('kill', this);
+            gameText.text = "You Won";
+            gameText.visible = true;
+
+            //the "click to restart" handler
+            //game.input.onTap.addOnce(restart, this);
+        }
     }
 
     function shotEnemy(bullet, hunters) {
-        bullet.kill();
-        //For some reason damage/health dont work for the enemies:/ ...randomly started working??
+        bullet.kill();        
         hunters.damage(1);
+        //Update score
+        if (!hunters.alive) {
+            score += 1;
+            scoreText.text = scoreString + score;
+        }
 
-        //  Create an Explosion on every impact    //Adapted from Invaders example
+        //  Create an Explosion on every bullet    //Adapted from Invaders example
         var explosion = explosions.getFirstExists(false);
         explosion.reset(hunters.body.x, hunters.body.y);
         explosion.play('explosion', 30, false, true);
+    }
+
+    function shotPlayer(player, hunterBullet) {
+        //Kills hunterBullet and damages player.
+        player.damage(10);
+        hunterBullet.kill();
+        
+
+        
+
+        if (!player.alive) {
+
+            //player ship explodes if no more shields
+            var explosion = explosions.getFirstExists(false);
+            explosion.reset(player.body.x, player.body.y);
+            explosion.play('explosion', 30, false, true);
+
+            hunterBullets.callAll('kill', this);
+            bullets.callAll('kill', this);
+            gameText.text = "GAME OVER";
+            gameText.addColor("#ff0000", 0);
+            gameText.visible = true;
+
+            //the "click to restart" handler
+            //game.input.onTap.addOnce(restart, this);
+        }
     }
      
 };
