@@ -15,7 +15,7 @@ window.onload = function() {
     
     var game = new Phaser.Game( 1200, 800, Phaser.AUTO, 'game', { preload: preload, create: create, update: update } );
     
-    //To do list: heals?, exhaust/varying ship images (USE TIMER?), powerups, more enemies, reverse movement, 
+    //To do list: heals?, exhaust/varying ship images (USE TIMER?), powerups, more enemies, reverse movement, display + keybind for additional powers
 
     function preload() {
         // Load the assets to be used in game.
@@ -207,7 +207,7 @@ window.onload = function() {
                 nextHunterAt = game.time.now + hunterDelay;
                 var hunter = hunters.getFirstExists(false);
                 // spawn at a random location top of the screen
-                hunter.reset(game.rnd.integerInRange(20, 1280), 0);
+                hunter.reset(game.rnd.integerInRange(15, 1280), 0);
                 // also randomize the speed
                 hunter.body.velocity.y = game.rnd.integerInRange(30, 60);
                 hunter.body.velocity.x = game.rnd.integerInRange(30, 60);
@@ -345,7 +345,7 @@ window.onload = function() {
         else if (player.health <= 60) {
             player.frame = 1;
         }
-        else if (player.health > 60) {
+        else {
             player.frame = 0;
         }
 
@@ -393,11 +393,12 @@ window.onload = function() {
         //player.animations.stop();
         if (player.health <= 20) {
             player.frame = 2;
+            player.loadTexture()
         }
         else if (player.health <= 60) {
             player.frame = 1;
         }
-        else if (player.health > 60) {
+        else {
             player.frame = 0;
         }
 
