@@ -15,7 +15,7 @@ window.onload = function() {
     
     var game = new Phaser.Game( 1200, 800, Phaser.AUTO, 'game', { preload: preload, create: create, update: update } );
     
-    //To do list: heals?, exhaust/varying ship images, powerups, more enemies, enemy bullet spawn
+    //To do list: heals?, exhaust/varying ship images (USE TIMER?), powerups, more enemies, reverse movement, 
 
     function preload() {
         // Load the assets to be used in game.
