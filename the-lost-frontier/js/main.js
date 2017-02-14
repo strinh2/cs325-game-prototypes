@@ -15,17 +15,20 @@ window.onload = function() {
     
     var game = new Phaser.Game( 1200, 800, Phaser.AUTO, 'game', { preload: preload, create: create, update: update } );
     
-    //To do list: player explosions, exhaust/varying ship images
+    //To do list: heals?, exhaust/varying ship images, powerups, more enemies, enemy bullet spawn
 
     function preload() {
         // Load the assets to be used in game.
-        game.load.image('hunters', 'assets/spaceship2_small.png');
+        game.load.image('hunters', 'assets/spaceship3.png');
         game.load.image('hunterBullet', 'assets/hunterBullet.png');
-        game.load.image('background', 'assets/space_small.jpg');
+        game.load.image('background', 'assets/space_2.jpg');
         game.load.image('bullet', 'assets/bullet_small.png');
         //game.load.image('player', 'assets/spaceship1.png');
         //game.load.atlasJSONHash('player', 'spaceship_Spriteshet.png', 'spaceship.json');
-        game.load.spritesheet('player', 'assets/spaceship_Spritesheet', 50, 60);
+        game.load.spritesheet('player', 'assets/spaceship_Spritesheet.png', 50, 60, 3);
+        game.load.spritesheet('playerHigh', 'assets/spaceship_SpritesheetHigh.png', 50, 60, 3);
+        game.load.spritesheet('playerMed', 'assets/spaceship_SpritesheetMed.png', 50, 60, 3);
+        game.load.spritesheet('playerLow', 'assets/spaceship_SpritesheetLow.png', 50, 60, 3);
         //game.load.image('player_med', 'assets/spaceship1_lowHealth.png');
         //game.load.image('player_low', 'assets/spaceship1_noHealth.png');
         game.load.image('planet', 'assets/planet.jpg');
@@ -88,12 +91,12 @@ window.onload = function() {
         hunterBullets.physicsBodyType = Phaser.Physics.ARCADE;
         hunterBullets.createMultiple(30, 'hunterBullet');
         hunterBullets.setAll('anchor.x', 0.5);
-        hunterBullets.setAll('anchor.y', 1);
+        hunterBullets.setAll('anchor.y', 0.5);
         hunterBullets.setAll('outOfBoundsKill', true);
         hunterBullets.setAll('checkWorldBounds', true);
 
         //The player
-        player = game.add.sprite(50, 60, 'player');
+        player = game.add.sprite(250, 250, 'player');
         player.frame = 0;
         player.anchor.setTo(0.5, 0.5);
         game.physics.enable(player, Phaser.Physics.ARCADE);
@@ -101,7 +104,10 @@ window.onload = function() {
         player.body.allowRotation = true;
         player.alive = true;
         player.setHealth(100);
-        player.animations.add('explosion');
+        player.animations.add('player');
+        player.animations.add('playerHigh');
+        player.animations.add('playerMed');
+        player.animations.add('playerLow');
 
         //Create the hunters. Adapted from the tutorial https://leanpub.com/html5shootemupinanafternoon/read#leanpub-auto-enemy-sprite-group
         hunters = game.add.group();
@@ -114,7 +120,7 @@ window.onload = function() {
         //livingHunters.length = 0;
 
         nextHunterAt = 0;
-        hunterDelay = 10000;            
+        hunterDelay = 5000;            
         
         //Shieldboard
         shield = 'Shields: ';        
@@ -201,7 +207,7 @@ window.onload = function() {
                 nextHunterAt = game.time.now + hunterDelay;
                 var hunter = hunters.getFirstExists(false);
                 // spawn at a random location top of the screen
-                hunter.reset(game.rnd.integerInRange(20, 780), 0);
+                hunter.reset(game.rnd.integerInRange(20, 1280), 0);
                 // also randomize the speed
                 hunter.body.velocity.y = game.rnd.integerInRange(30, 60);
                 hunter.body.velocity.x = game.rnd.integerInRange(30, 60);
@@ -214,6 +220,7 @@ window.onload = function() {
             }
             // Accelerate the hunters towards the player
             for (var i = 0; i < livingHunters.length; i++) {
+                var speed = game.rnd.integerInRange(25, 75);
                 livingHunters[i].rotation = game.physics.arcade.accelerateToObject(livingHunters[i], player, 55, 55, 55);
             }
             //hunters.rotation = game.physics.arcade.accelerateToObject(hunters, player, 50, 50, 50);             
@@ -238,7 +245,7 @@ window.onload = function() {
                 //player.body.velocity.x = 100;
             }
             else if (game.input.keyboard.isDown(Phaser.Keyboard.UP)) {                
-                currentSpeed = 200;
+                currentSpeed = 250;
                 //player.body.velocity.y = -100;
             }
             //else if (game.input.keyboard.justReleased(Phaser.Keyboard.DOWN)) {
@@ -261,20 +268,24 @@ window.onload = function() {
             if (game.time.now > hunterShootTimer) {
                 hunterShoot();
             }
+            
+            
+            //  Run collisions
+            game.physics.arcade.overlap(player, hunters, collisionDetect, null, this);
+            game.physics.arcade.overlap(bullets, hunters, shotEnemy, null, this);
+            game.physics.arcade.overlap(player, hunterBullets, shotPlayer, null, this);
+
             //Update Health
-            if (player.health <= 20) {
+            if (player.health <= 0) {
+                player.setHealth(0);
+            }
+            else if (player.health <= 20) {
                 shieldText.addColor("#ff0000", 0);
             }
             else if (player.health <= 60) {
                 shieldText.addColor("#ffff00", 0);
             }
             shieldText.setText(shield + player.health);
-
-            //  Run collisions
-            game.physics.arcade.overlap(player, hunters, collisionDetect, null, this);
-            game.physics.arcade.overlap(bullets, hunters, shotEnemy, null, this);
-            game.physics.arcade.overlap(player, hunterBullets, shotPlayer, null, this);
-                    
         }
     }
 
@@ -293,10 +304,10 @@ window.onload = function() {
             var randomHunter = game.rnd.integerInRange(0, livingHunters.length - 1);
             var shooter = livingHunters[randomHunter];
             // And fire the bullet from this enemy
-            hunterBullet.reset(shooter.body.x, shooter.body.y + 1.5);
+            hunterBullet.reset(shooter.body.x + 2, shooter.body.y + 1.5);
 
             game.physics.arcade.moveToObject(hunterBullet, player, 150);
-            hunterShootTimer = game.time.now + 1500;
+            hunterShootTimer = game.time.now + 1000;
         }
     }
 
@@ -324,13 +335,25 @@ window.onload = function() {
     function collisionDetect(player, hunter) {
         //Kills hunter and damages player.
         hunter.kill();
-        player.damage(20);        
+        player.damage(20);
+        //Play out the animation, then update the sprite image
+        player.play('player', 20, true, true);
+        //player.animation.stop();
+        if (player.health <= 20) {
+            player.frame = 2;
+        }
+        else if (player.health <= 60) {
+            player.frame = 1;
+        }
+        else if (player.health > 60) {
+            player.frame = 0;
+        }
 
         //  Increase the score
         score += 1;
         scoreText.text = scoreString + score;
 
-        //Alien ship explodes on impact
+        //Hunter ship explodes on impact
         var explosion = explosions.getFirstExists(false);
         explosion.reset(hunter.body.x, hunter.body.y);
         explosion.play('explosion', 30, false, true);
@@ -366,7 +389,17 @@ window.onload = function() {
         //Kills hunterBullet and damages player.
         player.damage(10);
         hunterBullet.kill();
-        
+        player.play('player', 20, true, true);
+        //player.animations.stop();
+        if (player.health <= 20) {
+            player.frame = 2;
+        }
+        else if (player.health <= 60) {
+            player.frame = 1;
+        }
+        else if (player.health > 60) {
+            player.frame = 0;
+        }
 
         
 
