@@ -149,7 +149,7 @@ window.onload = function() {
         deafBullets.setAll('checkWorldBounds', true);
 
         //The player
-        player = game.add.sprite(250, 250, 'player');
+        player = game.add.sprite(250, 500, 'player');
         player.frame = 0;
         player.anchor.setTo(0.5, 0.5);
         game.physics.enable(player, Phaser.Physics.ARCADE);
@@ -286,12 +286,12 @@ window.onload = function() {
                 //player.body.acceleration.x = ACCELERATION;
             }
             else if (game.input.keyboard.isDown(Phaser.Keyboard.UP)) {                
-                currentSpeed = 250;
+                currentSpeed = 300;
                 //player.body.acceleration.y = ACCELERATION;
                 //player.body.acceleration.x = ACCELERATION;
             }
             else if (game.input.keyboard.isDown(Phaser.Keyboard.DOWN)) {
-                currentSpeed = -250;
+                currentSpeed = -300;
                 //player.body.acceleration.y = ACCELERATION;
                 //player.body.acceleration.x = ACCELERATION;
             }
@@ -445,7 +445,7 @@ window.onload = function() {
             if (deafBullet) {
                 // And fire the bullet from this enemy
                 deafBullet.reset(1000, 400);
-                deafBullet.rotation = game.physics.arcade.accelerateToObject(deafBullet, player, 100);
+                deafBullet.rotation = game.physics.arcade.accelerateToObject(deafBullet, player, 65);
                 deafShootTimer = game.time.now + 2000;
             }
         }
