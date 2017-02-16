@@ -23,6 +23,9 @@ window.onload = function() {
         game.load.image('hunterBullet', 'assets/hunterBullet.png');
         game.load.image('background', 'assets/space_2.jpg');
         game.load.image('bullet', 'assets/bullet_small.png');
+        game.load.image('bulletImage', 'assets/bullet.png');
+        game.load.image('blast', 'assets/blast2.png');
+        game.load.image('blastImage', 'assets/blast2Image.png');
         //game.load.image('player', 'assets/spaceship1.png');
         //game.load.atlasJSONHash('player', 'spaceship_Spriteshet.png', 'spaceship.json');
         game.load.spritesheet('player', 'assets/spaceship_Spritesheet.png', 50, 60, 3);
@@ -32,7 +35,12 @@ window.onload = function() {
         //game.load.image('player_med', 'assets/spaceship1_lowHealth.png');
         //game.load.image('player_low', 'assets/spaceship1_noHealth.png');
         game.load.image('planet', 'assets/planet.jpg');
-        game.load.spritesheet('explosion', 'assets/explosion3.png',127,127);
+        game.load.spritesheet('explosion', 'assets/explosion3.png', 127, 127);
+
+        //http://www.tonysalvaggio.com/wp-content/uploads/2014/04/Laser_Red_Thick_512.png
+        //http://piq.codeus.net/static/media/userpics/piq_168192_400x400.png
+        //https://chrismalnu.files.wordpress.com/2016/02/clash2.png?w=680
+        //http://images.cdn4.stockunlimited.net/clipart/pixel-art-rocket-missile_1959042.jpg
     }
     
     
@@ -45,6 +53,16 @@ window.onload = function() {
     var hunterShootTimer = 0;
     //var enemyBullet;
     var firingTimer = 0;
+
+    //var arsenal;
+    var firstTime = false;
+    var arsenalText;
+    var bulletImage;
+    var blasts;
+    var blastTime = 0;
+    var blastActive = false;
+    var blastVisible = false;
+    var blastImage;
 
     var explosions;
     var player;
@@ -84,6 +102,16 @@ window.onload = function() {
         bullets.setAll('anchor.y', 1);
         bullets.setAll('outOfBoundsKill', true);
         bullets.setAll('checkWorldBounds', true);
+
+        // Player's upgraded blasts        (Adapted from Invaders example)
+        blasts = game.add.group();
+        blasts.enableBody = true;
+        blasts.physicsBodyType = Phaser.Physics.ARCADE;
+        blasts.createMultiple(25, 'bullet');
+        blasts.setAll('anchor.x', 0.5);
+        blasts.setAll('anchor.y', 1);
+        blasts.setAll('outOfBoundsKill', true);
+        blasts.setAll('checkWorldBounds', true);
         
         //Hunter's bullets        (Adapted from Invaders example)
         hunterBullets = game.add.group();
@@ -137,6 +165,14 @@ window.onload = function() {
         gameText.anchor.setTo(0.5, 0.5);
         gameText.visible = false;
 
+        //Current Arsenal Available in text/image form
+        arsenalText = game.add.text(70, 770, 'Arsenal: ', { font: '32px Roman', fill: '#fff' });
+        arsenalText.anchor.setTo(0.5, 0.5);
+        
+        //Add the bullet image
+        bulletImage = game.add.sprite(150, 770, 'bulletImage');
+        bulletImage.anchor.setTo(0.5, 0.5);
+        bulletImage.alpha = 0.9;
 
         //Explosions
         explosions = game.add.group();
@@ -236,12 +272,12 @@ window.onload = function() {
             if (game.input.keyboard.isDown(Phaser.Keyboard.LEFT)) {
                 //player.angle -= 4;                
                 player.angle -= 4;                               
-                currentSpeed= 150;
+                currentSpeed= 200;
             }
             else if (game.input.keyboard.isDown(Phaser.Keyboard.RIGHT)) {
                 //player.angle -= 4;                
                 player.body.rotation += 4;
-                currentSpeed = 150;
+                currentSpeed = 200;
                 //player.body.velocity.x = 100;
             }
             else if (game.input.keyboard.isDown(Phaser.Keyboard.UP)) {                
@@ -284,8 +320,21 @@ window.onload = function() {
             }
             else if (player.health <= 60) {
                 shieldText.addColor("#ffff00", 0);
+                blastActive = true;
+                firstTime = true;
+                displayBlasts();
             }
             shieldText.setText(shield + player.health);
+        }
+    }
+
+    //display arsenal images
+    function displayBlasts() {
+        if (blastActive && firstTime) {
+            blastImage = game.add.sprite(300, 770, 'blastImage');
+            blastImage.anchor.setTo(0.5, 0.5);
+            blastImage.alpha = 0.9;
+            firstTime = false;
         }
     }
 
