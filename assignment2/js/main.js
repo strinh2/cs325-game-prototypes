@@ -145,7 +145,7 @@ window.onload = function() {
         deafBullets.createMultiple(30, 'deafBullet');
         deafBullets.setAll('anchor.x', 0.5);
         deafBullets.setAll('anchor.y', 0.5);
-        deafBullets.setAll('outOfBoundsKill', true);
+        //deafBullets.setAll('outOfBoundsKill', true);
         deafBullets.setAll('checkWorldBounds', true);
 
         //The player
@@ -158,8 +158,8 @@ window.onload = function() {
         player.alive = true;
         player.setHealth(100);
         player.animations.add('player');
-        //player.body.maxVelocity.setTo(MAXSPEED, MAXSPEED);
-        //player.body.drag.setTo(DRAG, DRAG);
+        player.body.maxVelocity.setTo(MAXSPEED, MAXSPEED);
+        player.body.drag.setTo(DRAG, DRAG);
         
 
         //Create the hunters. 
@@ -233,8 +233,8 @@ window.onload = function() {
             //Reset the player's movement
             player.body.acceleration.x = 0
             player.body.acceleration.y = 0
-            currentSpeed = 50;
-            player.body.velocity.setTo(0, 0);
+            currentSpeed = 0;
+            //player.body.velocity.setTo(0, 0);   //Acceleration increases difficulty
 
             //  Scroll the background
             background.tilePosition.x += -0.5;
@@ -273,7 +273,7 @@ window.onload = function() {
             game.input.keyboard.addKeyCapture(Phaser.Keyboard.Z);
             game.input.keyboard.addKeyCapture(Phaser.Keyboard.X);
           
-                    
+            //Adapted from tutorial http://codeperfectionist.com/articles/phaser-js-tutorial-building-a-polished-space-shooter-game-part-2/
             //Read in user inputs, just in case somebody plays this.
             if (game.input.keyboard.isDown(Phaser.Keyboard.LEFT)) {
                 player.angle -= 4;                               
@@ -286,7 +286,12 @@ window.onload = function() {
                 //player.body.acceleration.x = ACCELERATION;
             }
             else if (game.input.keyboard.isDown(Phaser.Keyboard.UP)) {                
-                currentSpeed = 300;
+                currentSpeed = 250;
+                //player.body.acceleration.y = ACCELERATION;
+                //player.body.acceleration.x = ACCELERATION;
+            }
+            else if (game.input.keyboard.isDown(Phaser.Keyboard.DOWN)) {
+                currentSpeed = -250;
                 //player.body.acceleration.y = ACCELERATION;
                 //player.body.acceleration.x = ACCELERATION;
             }
@@ -513,7 +518,7 @@ window.onload = function() {
     function collisionDetect(player, hunter) {
         //Kills hunter and damages player.
         hunter.kill();
-        player.damage(20);
+        player.damage(10);
         //  Increase the score
         score += 10;
         scoreText.text = scoreString + score;
@@ -557,10 +562,12 @@ window.onload = function() {
             explosion.reset(hunter.body.x, hunter.body.y);
             explosion.play('explosion', 30, false, true);
         }
-        //  Create an Explosion     
-        var explosion = explosions.getFirstExists(false);
-        explosion.reset(bullet.body.x, bullet.body.y);
-        explosion.play('explosion', 30, false, true);
+        else {
+            //  Create an Explosion on the bullet     
+            var explosion = explosions.getFirstExists(false);
+            explosion.reset(bullet.body.x, bullet.body.y);
+            explosion.play('explosion', 30, false, true);
+        }
     }
 
     function bulletDeaf(bullet, deafster) {
