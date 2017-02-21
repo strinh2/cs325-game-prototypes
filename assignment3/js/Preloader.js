@@ -28,7 +28,10 @@ GameStates.makePreloader = function( game ) {
             game.load.audio('titleMusic', ['assets/Poppers and Prosecco.mp3']);
             //	+ lots of other required assets here
             game.load.image('background', 'assets/snow-night.jpg');
-            game.load.image('player', 'assets/footprints.png');
+            game.load.image('player', 'assets/footprints/footprints1.png');
+            //game.load.atlasJSONArray('footprints', 'footsteps.png', 'footsteps.json');
+            game.load.spritesheet('footprints', 'assets/footsteps.png', 30, 30);
+            game.load.image('light', 'assets/light.png');
         },
     
         create: function () {
