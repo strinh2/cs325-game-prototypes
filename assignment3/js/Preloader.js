@@ -32,6 +32,8 @@ GameStates.makePreloader = function( game ) {
             //game.load.atlasJSONArray('footprints', 'footsteps.png', 'footsteps.json');
             game.load.spritesheet('footprints', 'assets/footsteps.png', 30, 30);
             game.load.image('light', 'assets/light.png');
+            game.load.tilemap('tilemap', 'assets/level.json', null, Phaser.Tilemap.TILED_JSON);
+            game.load.image('tiles', 'assets/grey.png');
         },
     
         create: function () {

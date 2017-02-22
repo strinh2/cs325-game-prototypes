@@ -34,8 +34,32 @@ GameStates.makeGame = function( game, shared ) {
     
             //  Honestly, just about anything could go here. It's YOUR game after all. Eat your heart out!
 
-            background = game.add.tileSprite(0, 0, 800, 800, 'background');
+            //background = game.add.tileSprite(0, 0, 800, 800, 'background');
 
+            //Start the Arcade Physics systems
+            game.physics.startSystem(Phaser.Physics.ARCADE);
+ 
+            //Change the background colour
+            game.stage.backgroundColor = "#a9f0ff";
+ 
+            //Add the tilemap and tileset image. The first parameter in addTilesetImage
+            //is the name you gave the tilesheet when importing it into Tiled, the second
+            //is the key to the asset in Phaser
+            this.map = game.add.tilemap('tilemap');
+            this.map.addTilesetImage('walls', 'tiles');
+ 
+            //Add both the background and ground layers. We won't be doing anything with the
+            //GroundLayer though
+            this.backgroundLayer = this.map.createLayer('BackgroundLayer');
+            this.groundLayer = this.map.createLayer('GroundLayer');
+ 
+            //Before you can use the collide function you need to set what tiles can collide
+            //this.map.setCollisionBetween(0, 505, true, 'GroundLayer');
+ 
+            //Change the world size to match the size of this layer
+            //this.groundLayer.resizeWorld();
+ 
+       
 
             //Add the user into the game at one of the spawnpoints
             var rand = game.rnd.integerInRange(0, 6);
@@ -73,8 +97,8 @@ GameStates.makeGame = function( game, shared ) {
             footprints = game.add.group();
             footprints.createMultiple(25, 'footprints');
             footprints.forEach(function (unit) {
-                unit.anchor.x = 0.4;
-                unit.anchor.y = 0.1;
+                unit.anchor.x = 0.5;
+                unit.anchor.y = 0.5;
                 unit.animations.add('footprints');
             }, this);
             footTimer = 500;
@@ -125,7 +149,7 @@ GameStates.makeGame = function( game, shared ) {
                 if (game.time.now > footTimer) {
                     var footprint = footprints.getFirstExists(false);
                     //var printOffSet = 5 * Math.sin(game.math.degToRad(player.angle));
-                    footprint.reset(player.body.x, player.body.y);
+                    footprint.reset(player.x, player.y);
                     footprint.rotation = player.rotation;
                     footprint.play('footprints', 1, false, true);
                     footTimer = game.time.now + 500;
@@ -140,7 +164,6 @@ GameStates.makeGame = function( game, shared ) {
             var rand = game.rnd.integerInRange(0, 6);
             var locationX;
             var locationY;
-        },
-
+        }
     };
 };
