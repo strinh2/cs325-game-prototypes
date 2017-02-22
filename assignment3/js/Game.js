@@ -6,17 +6,23 @@ GameStates.makeGame = function( game, shared ) {
     var background;
     var footprints;
     var footTimer = 0;
+    var map;
+    var groundLayer;
+    var backgroundLayer;
 
     var spotLights;
-    var nextLightAt;
+    var nextLightAt = 0;
     var lightDelay = 0;
-    var lightLifeTime;
+    var lightLifeTimer;
+    var livingSpotLights = [];
 
     var sugarLevel;
     var sugarText;
+    var sugarTimer;
     var scoreText;
     var scoreString;
     var score = 0;
+    var gameText;
 
     function quitGame() {
 
@@ -45,19 +51,21 @@ GameStates.makeGame = function( game, shared ) {
             //Add the tilemap and tileset image. The first parameter in addTilesetImage
             //is the name you gave the tilesheet when importing it into Tiled, the second
             //is the key to the asset in Phaser
-            this.map = game.add.tilemap('tilemap');
-            this.map.addTilesetImage('walls', 'tiles');
+            map = game.add.tilemap('tilemap');
+            map.addTilesetImage('walls', 'tiles');
+
+
  
             //Add both the background and ground layers. We won't be doing anything with the
             //GroundLayer though
-            this.backgroundLayer = this.map.createLayer('BackgroundLayer');
-            this.groundLayer = this.map.createLayer('GroundLayer');
+             backgroundLayer = map.createLayer('BackgroundLayer');
+             groundLayer = map.createLayer('GroundLayer');
  
             //Before you can use the collide function you need to set what tiles can collide
-            //this.map.setCollisionBetween(0, 505, true, 'GroundLayer');
+            map.setCollisionBetween(0, 707, true, 'GroundLayer');
  
             //Change the world size to match the size of this layer
-            //this.groundLayer.resizeWorld();
+            //groundLayer.resizeWorld();
  
        
 
@@ -86,9 +94,11 @@ GameStates.makeGame = function( game, shared ) {
                 locationX = game.world.CenterX; //Spawn in the middle if 5 is returned.
                 locationY = game.world.centerY;
             }
-            player = game.add.sprite(locationX, locationY, 'player');            
+
+            player = game.add.sprite(locationX, locationY, 'player');
+            player.enableBody = true;
             player.anchor.setTo( 0.5, 0.5 );            
-            game.physics.enable( player, Phaser.Physics.ARCADE );
+            game.physics.enable(player, Phaser.Physics.ARCADE);
             player.body.collideWorldBounds = true;
             player.alive = true;
             player.setHealth(20);
@@ -111,9 +121,10 @@ GameStates.makeGame = function( game, shared ) {
             spotLights.setAll('anchor.x', 0.5);
             spotLights.setAll('anchor.y', 0.5);
             spotLights.setAll('checkWorldBounds', true);
-            nextLightAt = 0;                       
+            spotLights.setAll('outOfBoundsKill', true);
+            nextLightAt = 1000;                       
             lightDelay = game.rnd.integerInRange(0, 11000);
-            lightLifeTime = 10000;
+            lightLifeTimer = 1000;
 
 
             //sugarboard
@@ -121,21 +132,54 @@ GameStates.makeGame = function( game, shared ) {
             sugarText = game.add.text(10, 10, sugarLevel + player.health, { font: '24px Arial', fill: '#00ffff' });
             sugarText.visible = true;
             sugarText.alpha = 0.5;
+            sugarTimer = 2000;
+
+            gameText = game.add.text(game.world.centerX, game.world.centerY, ' ', { font: '80px Arial', fill: '#fff' });
+            gameText.anchor.setTo(0.5, 0.5);
+            gameText.visible = false;
 
             //Scoreboard   
             scoreString = 'Score: ';
             scoreText = game.add.text(600, 25, scoreString + score, { font: '24px Arial', fill: '#fff' });
             scoreText.anchor.setTo(0.5, 0.5);
             scoreText.visible = true;
-            scoreText.alpha = 0.5;
-            
+            scoreText.alpha = 0.5;            
             
         },        
-        
+        spawnLights: function () {   //Spawn the enemy spotlights
+          /**  var randRotation = game.rnd.integerInRange(0, 5);
+
+            lightDelay = game.rnd.integerInRange(0, 11000);
+            nextLightAt = game.time.now + lightDelay;
+            var spotLight = spotLights.getFirstExists(false);
+
+            // spawn at a random location 
+            spotLight.reset(game.rnd.integerInRange(15, 790), game.rnd.integerInRange(15, 790));
+
+            //Randomize the rotation of the spotlight
+            if (randRotation == 1) {
+                spotLight.angle = 0;
+            }
+            else if (randRotation == 2) {
+                spotLight.angle = 90;
+            }
+            else if (randRotation == 3) {
+                spotLight.angle = 180;
+            }
+            else {
+                spotLight.angle = -90; //If the number returns 4, set the spotlight to face west
+            }
+            spotLights.forEachAlive(function (spotLight) {
+                // put every living spotLight in an array
+                livingSpotLights.push(spotLight);
+            });
+            //spotLight.alive = true;
+            **/
+        },
         update: function () {
     
             //  Honestly, just about anything could go here. It's YOUR game after all. Eat your heart out!
-
+            this.game.physics.arcade.collide(player, groundLayer);
             //Reset player velocity
             player.body.velocity.setTo(0, 0);            
                 
@@ -159,11 +203,67 @@ GameStates.makeGame = function( game, shared ) {
             if (Phaser.Rectangle.contains(player.body, game.input.x, game.input.y)) {
                 player.body.velocity.setTo(0, 0);
             }
-        },
-        spawnLights: function () {   //Spawn the enemy spotlights
-            var rand = game.rnd.integerInRange(0, 6);
-            var locationX;
-            var locationY;
+            // Remove the spotlights after a certain amount of time
+            if (game.time.now > lightLifeTimer) {
+                for (var i = 0; i < livingSpotLights.length; i++) {
+                    livingSpotLights[i].damage(1);
+                }
+                lightLifeTimer = game.time.now + 1000;
+            }
+            //Spawn the enemy spotlights
+            if (nextLightAt < game.time.now && spotLights.countDead() >= 0) {
+                //spawnLights();
+                var randRotation = game.rnd.integerInRange(0, 5);
+
+                lightDelay = game.rnd.integerInRange(0, 11000);
+                nextLightAt = game.time.now + lightDelay;
+                var spotLight = spotLights.getFirstExists(false);
+
+                // spawn at a random location 
+                spotLight.reset(game.rnd.integerInRange(15, 790), game.rnd.integerInRange(15, 790));
+                
+                //Randomize the rotation of the spotlight
+                /**if (randRotation == 1) {
+                    spotLight.angle = 0;
+                }
+                else if (randRotation == 2) {
+                    spotLight.angle = 90;
+                }
+                else if (randRotation == 3) {
+                    spotLight.angle = 180;
+                }
+                else {
+                    spotLight.angle = -90; //If the number returns 4, set the spotlight to face west
+                }
+                **/
+                spotLight.rotation = game.rnd.integerInRange(0, 800);
+                game.physics.arcade.velocityFromRotation(spotLight.rotation, 100, spotLight.body.velocity);
+                spotLights.forEachAlive(function (spotLight) {
+                    // put every living spotLight in an array
+                    livingSpotLights.push(spotLight);
+                });
+                spotLight.alive = true;
+                spotLight.setHealth(game.rnd.integerInRange(10, 15));
+            }
+
+            //Collisions!
+            if (game.physics.arcade.overlap(player, spotLights, null, null, this)) {
+                quitGame();
+            }
+            
+            //update the sugar levels
+            if (game.time.now > sugarTimer) {
+                player.damage(1);
+                sugarText.text = sugarLevel + player.health;
+                sugarTimer = 1000 + game.time.now;
+                //If the user's sugar levels hit 0, game over
+                if (!player.alive) {
+                    gameText.text = 'Game Over';
+                    gameText.visible = true;
+                    //game.pause();
+                    quitGame();
+                }
+            }
         }
     };
 };

@@ -33,7 +33,7 @@ GameStates.makePreloader = function( game ) {
             game.load.spritesheet('footprints', 'assets/footsteps.png', 30, 30);
             game.load.image('light', 'assets/light.png');
             game.load.tilemap('tilemap', 'assets/level.json', null, Phaser.Tilemap.TILED_JSON);
-            game.load.image('tiles', 'assets/grey.png');
+            game.load.image('tiles', 'assets/grey.jpg');
         },
     
         create: function () {
@@ -57,7 +57,7 @@ GameStates.makePreloader = function( game ) {
             if (game.cache.isSoundDecoded('titleMusic') && ready == false)
             {
                 ready = true;
-                game.state.start('MainMenu');
+                game.state.start('Game');
             }
     
         }
