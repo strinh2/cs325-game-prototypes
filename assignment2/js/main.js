@@ -36,7 +36,7 @@ window.onload = function() {
         game.load.spritesheet('playerLow', 'assets/spaceship_SpritesheetLow.png', 50, 60, 3);
         game.load.image('planet', 'assets/planet.jpg');
         game.load.spritesheet('explosion', 'assets/explosion3.png', 127, 127);
-        game.load.audio('music', 'assets/audio/MDK-JellyCastle.mp3');
+        game.load.audio('music', 'assets/footsteps.mp3');
     }
     
     //Inialize variables
