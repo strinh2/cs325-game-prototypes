@@ -181,7 +181,7 @@ window.onload = function() {
         asteroids.setAll('anchor.y', 0.5);
         asteroids.setAll('checkWorldBounds', true);
         asteroids.setAll('outOfBoundsKill', true);
-        asteroidDelay = 1000;
+        asteroidDelay = 500;
         nextAsteroidAt = 0;
         
         //Create a group of planetMs 
@@ -768,7 +768,7 @@ window.onload = function() {
     function collisionAsteroid(player, asteroid) {
         //Kills asteroid and makes the player bigger!
         asteroid.kill();
-        player.heal(1);
+        player.heal(2);
         //  Increase the score
         score += 10;
         scoreText.text = scoreString + score;
