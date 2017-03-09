@@ -77,6 +77,9 @@ window.onload = function() {
     var nextstarAt;
     var starDelay;
 
+    var hp = '';
+    var hpText;
+
     var score = 0;
     var scoreText;
     var scoreString;
@@ -222,6 +225,10 @@ window.onload = function() {
         scoreText = game.add.text(1050, 25, scoreString + score, { font: '42px Arial', fill: '#fff' });
         scoreText.anchor.setTo(0.5, 0.5);
         scoreText.visible = true;
+
+        hp = 'HP: ';
+        hpText = game.add.text(10, 10, hp + player.health, { font: '42px Arial', fill: '#00ffff' });
+        hpText.visible = true;
 
         gameText = game.add.text(game.world.centerX, game.world.centerY, ' ', { font: '32px Arial', fill: '#fff' });
         gameText.anchor.setTo(0.5, 0.5);
@@ -405,6 +412,15 @@ window.onload = function() {
                 cowboyShoot();
             }
 
+            //Update health
+            hpText.setText(hp + player.health);
+            if (player.health == 100) {
+                scoreText.text = scoreString + score;
+                gameText.text = "You Won! You're now big enough to brave the outer reaches of space!";
+                gameText.visible = true;
+            }
+
+            resizePlayer();
 
             //  Run collisions
             game.physics.arcade.overlap(player, asteroids, collisionAsteroid, null, this);
@@ -424,16 +440,9 @@ window.onload = function() {
             game.physics.arcade.overlap(planetMs, bullets, shotPlanetM, null, this);
             game.physics.arcade.overlap(planetSs, bullets, shotPlanetS, null, this);
             game.physics.arcade.overlap(asteroids, cowboys, cowboyAsteroid, null, this);
-            
-
-            if (player.health == 100) {
-                scoreText.text = scoreString + score;
-
-                gameText.text = "You Won! You're now big enough to brave the outer reaches of space!";
-                gameText.visible = true;
-            }
-
-            resizePlayer();
+            game.physics.arcade.overlap(planetMs, cowboys, cowboyPlanetM, null, this);
+            game.physics.arcade.overlap(planetSs, cowboys, cowboyPlanetS, null, this);
+            game.physics.arcade.overlap(stars, cowboys, cowboyStar, null, this);
                 
         
            //  Keep the playerTrail lined up with the ship
@@ -442,6 +451,8 @@ window.onload = function() {
         }
         else {
             //Game over
+            //Update health
+            hpText.text = hp + player.health;
             var explosion = explosions.getFirstExists(false);
             explosion.reset(player.body.x, player.body.y);
             explosion.play('explosion', 30, false, true);
@@ -494,6 +505,9 @@ window.onload = function() {
         else {
             cowboy.kill();   //Destroys cowboy if large enough, but still takes damage due to explosive engine.
             player.damage(5);
+            //  Increase the score
+            score += 50;
+            scoreText.text = scoreString + score;
             var explosion = explosions.getFirstExists(false);
             explosion.reset(cowboy.x, cowboy.y);
             explosion.play('explosion', 30, false, true);
@@ -529,6 +543,38 @@ window.onload = function() {
     function cowboyAsteroid(asteroid, cowboy) {
         asteroid.kill();
         cowboy.kill();
+        //  Increase the score
+        score += 25;
+        scoreText.text = scoreString + score;
+        var explosion = explosions.getFirstExists(false);
+        explosion.reset(cowboy.x, cowboy.y);
+        explosion.play('explosion', 30, false, true);
+    }
+
+    function cowboyPlanetM(planetM, cowboy) {
+        cowboy.kill();
+        //  Increase the score
+        score += 30;
+        scoreText.text = scoreString + score;
+        var explosion = explosions.getFirstExists(false);
+        explosion.reset(cowboy.x, cowboy.y);
+        explosion.play('explosion', 30, false, true);
+    }
+    function cowboyPlanetS(planetS, cowboy) {
+        cowboy.kill();
+        //  Increase the score
+        score += 40;
+        scoreText.text = scoreString + score;
+        var explosion = explosions.getFirstExists(false);
+        explosion.reset(cowboy.x, cowboy.y);
+        explosion.play('explosion', 30, false, true);
+    }
+
+    function cowboyStar(star, cowboy) {
+        cowboy.kill();
+        //  Increase the score
+        score += 30;
+        scoreText.text = scoreString + score;
         var explosion = explosions.getFirstExists(false);
         explosion.reset(cowboy.x, cowboy.y);
         explosion.play('explosion', 30, false, true);
