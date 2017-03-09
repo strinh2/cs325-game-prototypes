@@ -421,6 +421,36 @@ window.onload = function() {
             }
 
             resizePlayer();
+            //Gravity between Asteroids and small  planets
+            asteroids.forEachAlive(function (asteroid) {
+                planetSs.forEachAlive(function (planetS) {
+                    if (game.physics.arcade.distanceBetween(asteroid, planetS) <= 85) {
+                        asteroid.rotation = planetS.rotation;
+                        game.physics.arcade.velocityFromRotation(asteroid.rotation, game.rnd.integerInRange(150, 300), asteroid.body.velocity);
+                    }
+                });
+                
+            });
+            
+            //Gravity between Asteroids and Medium  planets
+            asteroids.forEachAlive(function (asteroid) {
+                planetMs.forEachAlive(function (planetM) {
+                    if (game.physics.arcade.distanceBetween(asteroid, planetM) <= 120) {
+                        asteroid.rotation = planetM.rotation;
+                        game.physics.arcade.velocityFromRotation(asteroid.rotation, game.rnd.integerInRange(175, 325), asteroid.body.velocity);
+                    }
+                });
+
+            });
+            //var accelerateTrue = false;
+            //Gravity between player and small planets
+                //planetSs.forEachAlive(function (planetS) {
+                   // if (game.physics.arcade.distanceBetween(player, planetS) <= 300) {
+                      //  accelerateTrue;
+                      //  player.rotation = planetS.rotation;
+                      //  game.physics.arcade.accelerateToObject(player, planetS, 100);
+                   // }
+               // });
 
             //  Run collisions
             game.physics.arcade.overlap(player, asteroids, collisionAsteroid, null, this);
@@ -429,8 +459,8 @@ window.onload = function() {
             game.physics.arcade.overlap(player, stars, collisionStar, null, this);
             game.physics.arcade.overlap(planetSs, stars, planetSStar, null, this);
             game.physics.arcade.overlap(planetMs, stars, planetMStar, null, this);
-            game.physics.arcade.overlap(asteroids, planetSs, collisionAsteroidPlanetS, null, this);
-            game.physics.arcade.overlap(asteroids, planetMs, collisionAsteroidPlanetM, null, this);
+            //game.physics.arcade.overlap(asteroids, planetSs, collisionAsteroidPlanetS, null, this);
+            //game.physics.arcade.overlap(asteroids, planetMs, collisionAsteroidPlanetM, null, this);
             game.physics.arcade.overlap(asteroids, stars, collisionAsteroidStar, null, this);
             game.physics.arcade.overlap(planetSs, planetMs, planetCollision, null, this);
             game.physics.arcade.overlap(player, bullets, shotPlayer, null, this);
