@@ -226,7 +226,7 @@ window.onload = function() {
         scoreText.anchor.setTo(0.5, 0.5);
         scoreText.visible = true;
 
-        hp = 'HP: ';
+        hp = 'Growth: ';
         hpText = game.add.text(10, 10, hp + player.health, { font: '42px Arial', fill: '#00ffff' });
         hpText.visible = true;
 
