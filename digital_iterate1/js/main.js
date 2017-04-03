@@ -319,7 +319,7 @@ window.onload = function() {
                 client.reset(100, 200);
                 currentClients[0] = client;
                 //Add text to the clients. 
-                var clientText = game.add.text(0, 0, 'Likes to Fight', { font: "30px Arial", fill: "#000000", align: "left" });
+                var clientText = game.add.text(0, 0, 'Likes to Fight asdf kl;jljl lkjlj;lkj\n;kj jkljkl', { font: "30px Arial", fill: "#000000", align: "left" });
                 client.addChild(clientText);
                 client.alive = true;
                 client.setHealth(15);
