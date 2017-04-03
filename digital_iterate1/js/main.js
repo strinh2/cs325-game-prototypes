@@ -56,6 +56,14 @@ window.onload = function() {
     var clientDelay;
     var nextClientAt;
     var clientTimer;
+
+    //Arrays to hold matching client values
+    var description = [];
+    var money = [];
+
+    var orders = [];
+    var stack= [];
+
     var planetMs;
     var livingPlanetMs = [];
     var nextplanetMAt;
@@ -73,11 +81,25 @@ window.onload = function() {
     function create() {
         
         game.physics.startSystem(Phaser.Physics.ARCADE);
-        game.stage.backgroundColor = "#ffffff";
+        game.stage.backgroundColor = "#ADD8E6";
         //background = game.add.tileSprite(0, 0, 1200, 800, 'background');
 
+        //initialize an array to hold all of the client descriptions
+        description[0] = "description 0";
+        description[1] = "description 1";
+        description[2] = "description 2";
+        description[3] = "description 3";
+        description[4] = "description 4";
+        description[5] = "description 5";
 
-    
+        //Stack to keep track of the unused orders
+        var n;
+        for (n = 0; n < description.length; n++) {
+            var rand = game.rnd.integerInRange(0, description.length - 1);
+            stack.push(rand);
+        }
+
+        stack.push
         //Create the clients. 
         clients = game.add.group();
         clients.enableBody = true;
@@ -87,7 +109,7 @@ window.onload = function() {
         clients.setAll('anchor.y', 0.5);
         clients.setAll('checkWorldBounds', false);
         nextClientAt = 5000;                      
-        clientDelay = 10000;
+        clientDelay = 5000;
         clientTimer = 1000;
 
         var i;
@@ -95,7 +117,12 @@ window.onload = function() {
             currentClients[i] = null;
         }
         numClients = 0;
-        addClient();        
+        addClient();
+
+        
+
+        
+
         //game.physics.arcade.enable(client, Phaser.Physics.ARCADE);
         //client.anchor.setTo(0.5, 1);
         //client.tint = 0xff00ff;
@@ -113,7 +140,6 @@ window.onload = function() {
             stopDrag(currentSprite, clients);
         }, this);
     **/
-   
   
 
         //The player
@@ -127,9 +153,6 @@ window.onload = function() {
         player.width = 50;
         player.height = 50;
         **/
-
-
-
 
         
 
@@ -190,9 +213,9 @@ window.onload = function() {
             **/
 
 
-            //Give the players more clients at 10 second intervals if they're not already maxed.
+            //Give the players more clients at intervals if they're not already maxed for the first 30 seconds.
             if (nextClientAt < game.time.now) {
-                nextClientAt = game.time.now + clientDelay;
+                nextClientAt = game.time.now + 2000;
                 addClient();
             }
           
@@ -200,19 +223,22 @@ window.onload = function() {
             if (clientTimer < game.time.now) {
                 clientTimer = game.time.now + 1000;
                 clients.forEachAlive(function (client) {
-                    client.damage(1);
+                    client.damage(2);
                 });
             }
 
             //Remove and update the number of clients when one 'leaves'
             var i;
-            for (i = 0; i < 3; i++) {
+            for (i = 0; i < 5; i++) {
                 if (currentClients[i] != null && !currentClients[i].alive) {
+                    currentClient.
+                    currentClients[i].children[0].destroy();
+                    currentClients[i].removeChild(clientText);
                     currentClients[i] = null;
+                    description[i] = null;
                     numClients--;
                 }
-            }
-            
+            }     
 
 
 
@@ -316,37 +342,42 @@ window.onload = function() {
 
             // spawn at an open client spot
             if (currentClients[0] == null) {
-                client.reset(100, 200);
+                client.reset(0, 175);
                 currentClients[0] = client;
-                //Add text to the clients. 
-                var clientText = game.add.text(0, 0, 'Likes to Fight asdf kl;jljl lkjlj;lkj\n;kj jkljkl', { font: "30px Arial", fill: "#000000", align: "left" });
-                client.addChild(clientText);
-                client.alive = true;
-                client.setHealth(15);
-                numClients++;
             }
             else if(currentClients[1] == null){
-                client.reset(100, 400);
+                client.reset(0, 425);
                 currentClients[1] = client;
-                //Add text to the clients. 
-                var clientText = game.add.text(0, 0, 'Likes to Fight 2', { font: "30px Arial", fill: "#000000", align: "left" });
-                client.addChild(clientText);
-                client.alive = true;
-                client.setHealth(15);
-                numClients++;
             }
             else if(currentClients[2] == null){
-                client.reset(100, 600);
-                currentClients[2] = client;
-                //Add text to the clients. 
-                var clientText = game.add.text(0, 0, 'Likes to Fight 3', { font: "30px Arial", fill: "#000000", align: "left" });
-                client.addChild(clientText);
-                client.alive = true;
-                client.setHealth(15);
-                numClients++;
-                
+                client.reset(0, 675);
+                currentClients[2] = client;                
             }
-        }
+            //Initialize the client information.
+            var rand = game.rnd.integerInRange(0, description.length - 1);
+            //Each description will only be used once, so check to make sure it hasn't been used already before assigning it to a new client!
+            while (description[rand] == null) {
+                rand = game.rnd.integerInRange(0, 5);
+            }
+            client.mystuff = {};
+            client.mystuff.key = null;
+            client.mystuff.index = null;
+            client.mystuff.descr = null;
+            client.mystuff.money = null;
+
+            client.mystuff.descr = description[rand];
+            client.mystuff.index = rand;
+
+
+            //var text1 = client.mystuff.descr;
+            //Add text to the clients. 
+            var clientText = game.add.text(0, 0, client.mystuff.descr, { font: "30px Arial", fill: "#000000", align: "left" });
+            client.addChild(clientText);
+            //'Likes to Fight asdf kl;jljl lkjlj;lkj\n;kj jkljkl'
+            client.alive = true;
+            client.setHealth(15);
+            numClients++;
+        }        
     }
 
     /**
