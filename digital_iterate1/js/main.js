@@ -19,13 +19,13 @@ window.onload = function() {
     function preload() {
         // Load the assets to be used in game.
         game.load.image('client', 'assets/client.png');
-        game.load.image('cowboyBullet', 'assets/cowboyBullet.png');
         game.load.image('asteroid', 'assets/asteroid_mini.png');
         game.load.image('background', 'assets/space_2.jpg');
-        game.load.image('blastImage', 'assets/blast2Image.png');
         game.load.image('bullet', 'assets/bullet.png');
-        game.load.image('laserImage', 'assets/laserImage.png');
         game.load.image('player', 'assets/player.png');
+        game.load.image('pet0', 'assets/spaceship1.png');
+        game.load.image('pet1', 'assets/spaceship1_lowHealth.png');
+        game.load.spritesheet('pet', 'assets/spaceship_Spritesheet.png', 50, 60);
         game.load.image('playerCopy', 'assets/spaceship1.png')
         game.load.image('planetM', 'assets/planet.png');
         game.load.image('planetS', 'assets/planetS.png');
@@ -47,20 +47,30 @@ window.onload = function() {
     var outputText;
     var bullets;
     var timer = 1000;
-
+    var pets;
+    var nextPetAt;
+    var petDelay;
+    var petTimer;
+    var numPets;
+    var currentPets = [];
+    var keys = [];
 
     var clients;
     var clientText;
     var currentClients = [3];
     var numClients;
+    var numNewClients;
     var clientDelay;
     var nextClientAt;
     var clientTimer;
 
     //Arrays to hold matching client values
     var description = [];
-    var money = [];
-
+    var moneys = [];
+    var requires = [];
+    var colors = [];
+    var patterns = [];
+    var titles = [];
     var orders = [];
     var stack= [];
 
@@ -72,12 +82,15 @@ window.onload = function() {
     var hp = '';
     var hpText;
 
-    var score = 0;
-    var scoreText;
-    var scoreString;
+    var profit = 0;
+    var totalMoney = 0;
+    var profitText;
+    var profitString;
     var gameText;
+    var strike = 0;
 
-
+    var gameOver = false;
+    var numPokeOrders = 0;
     function create() {
         
         game.physics.startSystem(Phaser.Physics.ARCADE);
@@ -85,21 +98,95 @@ window.onload = function() {
         //background = game.add.tileSprite(0, 0, 1200, 800, 'background');
 
         //initialize an array to hold all of the client descriptions
-        description[0] = "description 0";
-        description[1] = "description 1";
-        description[2] = "description 2";
-        description[3] = "description 3";
-        description[4] = "description 4";
-        description[5] = "description 5";
+        description[0] = "0 for ground zero";
+        description[1] = "but the loneliest number is the\n number 1";
+        description[2] = "2 can be as bad as one";
+        description[3] = "3 for third wheel";
+        description[4] = "too dank 4me";
+        description[5] = "5head";
+        description[6] = "We have an undergoing investigation\n and need to see your client history.";
+        description[7] = "Hey I'm looking for something \nyellow, striped, likes to fight and can generate \nelectricity!";
 
+        //Initialize the titles for each client
+        titles[0] = "Zero the Hero";
+        titles[1] = "First the worst";
+        titles[2] = "Second the Best";
+        titles[3] = "Third the one with the hairy chest";
+        titles[4] = "Fourth the one with the wedding dress";
+        titles[5] = "Fifth..who has five kids anyway";
+        titles[6] = "Popo";
+        titles[7] = "Mr. A. Ketchup";
+
+
+        //initialize an array to hold all client money values
+        moneys[0] = 1000;
+        moneys[1] = 10000;
+        moneys[2] = 20000;
+        moneys[3] = 30000;
+        moneys[4] = 40000;
+        moneys[5] = 50000;
+        moneys[6] = 1;
+        moneys[7] = 75000;
+
+        //initialize an array to hold all client required features values
+        requires[0] = "0 likes to fight";
+        requires[1] = "1 likes to fight";
+        requires[2] = "2 likes to fight";
+        requires[3] = "3 likes to fight";
+        requires[4] = "4 likes to fight";
+        requires[5] = "5 likes to fight";
+        requires[6] = "Not funtime handcuffs";
+        requires[7] = "Likes to fight";
+
+        //initialize an array to hold all client preferred colors
+        colors[0] = "0 white";
+        colors[1] = "1 yellow";
+        colors[2] = "2 grey";
+        colors[3] = "3 black";
+        colors[4] = "4 white";
+        colors[5] = "5 yellow";
+        colors[6] = "black and blue";
+        colors[7] = "yellow";
+
+        //initialize an array to hold all client preferred patterns
+        patterns[0] = "0 clear";
+        patterns[1] = "1 spot";
+        patterns[2] = "2 stripes";
+        patterns[3] = "3 clear";
+        patterns[4] = "4 spots";
+        patterns[5] = "5 stripes";
+        patterns[6] = "bruises";
+        patterns[7] = "stripes";
+
+        //initialize an array to hold all pet's key sprites.
+        keys[0] = "pet0";
+        keys[1] = "pet1";
+       // keys[2] = "pet2";
+       // keys[3] = "pet3";
+       // keys[4] = "pet4";
+       // keys[5] = "pet5";
+         
         //Stack to keep track of the unused orders
+        stack = [description.length];
+        var k;
+        for (k = 0; k < description.length; k++) {
+            stack[k] = null;
+        }
         var n;
         for (n = 0; n < description.length; n++) {
             var rand = game.rnd.integerInRange(0, description.length - 1);
-            stack.push(rand);
+            while (stack[rand] != null) {
+                rand = game.rnd.integerInRange(0, description.length - 1);
+            }
+            stack[rand] = n;
+        }
+        
+        console.log("stack order");
+        var v;
+        for (v = 0; v < stack.length; v++) {
+            console.log(stack[v]);
         }
 
-        stack.push
         //Create the clients. 
         clients = game.add.group();
         clients.enableBody = true;
@@ -117,11 +204,9 @@ window.onload = function() {
             currentClients[i] = null;
         }
         numClients = 0;
-        addClient();
+        numNewClients = description.length;   
 
-        
-
-        
+                
 
         //game.physics.arcade.enable(client, Phaser.Physics.ARCADE);
         //client.anchor.setTo(0.5, 1);
@@ -129,18 +214,37 @@ window.onload = function() {
 
         //Drag and Drop!  //Adapted from the html 5 game devs help thread: http://www.html5gamedevs.com/topic/13869-drag-and-drop/
         //player = game.add.sprite(500, 500, 'player');
-        /**player.anchor.x = 0.5;
-        game.physics.arcade.enable(player, Phaser.Physics.ARCADE);
-        player.width = 150;
-        player.height = 150;
-        player.inputEnabled = true;
-        player.input.enableDrag();
-        player.originalPosition = player.position.clone();
-        player.events.onDragStop.add(function(currentSprite){
-            stopDrag(currentSprite, clients);
-        }, this);
-    **/
-  
+
+        //Create the pets 
+        pets = game.add.group();
+        pets.enableBody = true;
+        //pets.physicsBodyType = Phaser.Physics.ARCADE;
+        pets.createMultiple(50, 'pet1');
+        pets.setAll('anchor.x', 0.5);
+        pets.setAll('anchor.y', 0.5);
+        pets.setAll('checkWorldBounds', false);
+        nextPetAt = 5000;
+        petDelay = 5000;
+        petTimer = 1000;
+
+        //pet.anchor.x = 0.5;
+        //game.physics.arcade.enable(pet, Phaser.Physics.ARCADE);
+        //pet.width = 150;
+        //pet.height = 150;
+        pets.forEach(function (pet) {
+            //pet.frame = 0;
+            game.physics.arcade.enable(pet);
+            pet.anchor.x = 0.5;
+            pet.inputEnabled = true;
+            pet.input.enableDrag();
+            pet.originalPosition = pet.position;
+            //pet.events.onDragStop.add(function (currentSprite) {
+           //     stopDrag(currentSprite, clients);
+            //}, this);
+        });            
+
+        numPets = 0;
+        
 
         //The player
         /**player = game.add.sprite(250, 500, 'player');
@@ -159,21 +263,22 @@ window.onload = function() {
 
 
         
-        //Scoreboard   //Adapted from Space Invaders example
-        scoreString = 'Score: ';
-        scoreText = game.add.text(1050, 25, scoreString + score, { font: '42px Arial', fill: '#fff' });
-        scoreText.anchor.setTo(0.5, 0.5);
-        scoreText.visible = true;
+        //profitboard   //Adapted from Space Invaders example
+        profitString = 'profit: ';
+        profitText = game.add.text(1050, 25, profitString + profit, { font: '42px Arial', fill: '#fff' });
+        profitText.anchor.setTo(0.5, 0.5);
+        profitText.visible = true;
 
         hp = 'Growth: ';
         hpText = game.add.text(10, 10, hp, { font: '42px Arial', fill: '#00ffff' });
         hpText.visible = true;
 
-        gameText = game.add.text(game.world.centerX, game.world.centerY, ' ', { font: '32px Arial', fill: '#fff' });
+        gameText = game.add.text(game.world.centerX, game.world.centerY, ' ', { font: '32px Arial', fill: '#000000' });
         gameText.anchor.setTo(0.5, 0.5);
         gameText.visible = false;
 
-
+        addClient();
+        addPet();
         //Explosions  
         explosions = game.add.group();
         explosions.createMultiple(25, 'explosion');
@@ -190,29 +295,6 @@ window.onload = function() {
     
     function update() {
                
-
-            /**Spawn cowboys  //Adapted from the tutorial: https://leanpub.com/html5shootemupinanafternoon/read#leanpub-auto-enemy-sprite-group
-            if (nextcowboyAt < game.time.now && cowboys.countDead() >= 0) {
-                nextcowboyAt = game.time.now + game.rnd.integerInRange(7500, 20000);
-                var cowboy = cowboys.getFirstExists(false);
-
-                // spawn at a random location to the right
-                cowboy.reset(1280, game.rnd.integerInRange(15, 789));
-                cowboy.angle = game.rnd.integerInRange(90, 270);
-                //Add text to the new pets. Adapted from the html5 example: http://www.html5gamedevs.com/topic/7837-how-do-i-align-text-with-a-sprite/
-                var cowboyText = game.add.text(0, 0, 'Likes to Fight', { font: "30px Arial", fill: "#ffffff", align: "left" });
-                cowboy.addChild(cowboyText);
-                cowboyText.x = (cowboy.width - cowboyText.width) / 2;
-                cowboyText.y = (cowboy.height - cowboyText.height) / 2;
-                //cowboys.forEachAlive(function (cowboy) {
-                    // put every living cowboy in an array
-                    livingcowboys.push(cowboy);
-                //});
-                cowboy.alive = true;
-            }
-            **/
-
-
             //Give the players more clients at intervals if they're not already maxed for the first 30 seconds.
             if (nextClientAt < game.time.now) {
                 nextClientAt = game.time.now + 2000;
@@ -227,51 +309,61 @@ window.onload = function() {
                 });
             }
 
-            //Remove and update the number of clients when one 'leaves'
+            //Remove and update the number of clients when one 'leaves'. No returning customers in this iteration.
             var i;
-            for (i = 0; i < 5; i++) {
+            for (i = 0; i < 3; i++) {
                 if (currentClients[i] != null && !currentClients[i].alive) {
-                    currentClient.
-                    currentClients[i].children[0].destroy();
+                    if (currentClients[i].children[0] != null) {
+                        currentClients[i].children[0].destroy();
+                    }
                     currentClients[i].removeChild(clientText);
-                    currentClients[i] = null;
-                    description[i] = null;
+                    currentClients[i] = null;  //garbage collector should clean up the removed clients
                     numClients--;
                 }
             }     
 
+        //Give the players more pets at 5 second intervals if they're not already maxed at 15.
+            if (nextPetAt < game.time.now) {
+                nextPetAt = game.time.now + 1000;
+                addPet();
+            }
+
+            // move pets
+            pets.forEachAlive(function (pet) {
+                game.physics.arcade.velocityFromRotation(pet.rotation, game.rnd.integerInRange(100, 200), pet.body.velocity);
+            });
 
 
-            //The keys to be used in this game
-            game.input.keyboard.addKeyCapture(Phaser.Keyboard.UP);
-            game.input.keyboard.addKeyCapture(Phaser.Keyboard.DOWN);
-            game.input.keyboard.addKeyCapture(Phaser.Keyboard.LEFT);
-            game.input.keyboard.addKeyCapture(Phaser.Keyboard.RIGHT);
+            //Check if the player has dragged a pet into a client (ie made an order!)
+            pets.forEach(function (pet) {                
+                pet.events.onDragStop.add(function (pet) {
+                    if (!game.physics.arcade.overlap(pet, clients, processOrder)) {
+                        pet.position.copyFrom(pet.originalPosition);
+                    }
+                }, null, this);
+            });
+
+        //update the profit scoreboard, but do it in a satisfying way that players can see
+            if (profit != totalMoney) {
+                if ((totalMoney - profit) < 501) {
+                    profitText.text = profitString + (profit += 25); 
+                }
+                else if ((totalMoney - profit) < 1001) {
+                    profitText.text = profitString + (profit += 250);
+                }
+                else {
+                    profitText.text = profitString + (profit += 500);
+                }
                 
-            //Adapted from tutorial http://codeperfectionist.com/articles/phaser-js-tutorial-building-a-polished-space-shooter-game-part-2/
-            //Read in user inputs, just in case somebody plays this.
-            /**if (game.input.keyboard.isDown(Phaser.Keyboard.LEFT)) {
-                player.angle -= 4;
-                currentSpeed = 200;
-                //player.body.acceleration.x = -ACCELERATION;
-            }
-            else if (game.input.keyboard.isDown(Phaser.Keyboard.RIGHT)) {
-                player.body.rotation += 4;
-                currentSpeed = 200;
-            }
-            else if (game.input.keyboard.isDown(Phaser.Keyboard.UP)) {
-                currentSpeed = 300;
-            }
+            }              
 
-            game.physics.arcade.velocityFromRotation(player.rotation, currentSpeed, player.body.velocity);
-            **/
 
 
 
             //Update health
             /**hpText.setText(hp + player.health);
             if (player.health == 100) {
-                scoreText.text = scoreString + score;
+                profitText.text = profitString + profit;
                 gameText.text = "You Won! You're now big enough to brave the outer reaches of space!";
                 gameText.visible = true;
                 **/
@@ -329,15 +421,43 @@ window.onload = function() {
     function stopDrag(currentSprite, endSprite){
         if (!game.physics.arcade.overlap(currentSprite, endSprite, function() {
         currentSprite.input.draggable = false;
-        currentSprite.position.copyFrom(endSprite.position); 
+        currentSprite.x = endSprite.x;
+        currentSprite.y = endSprite.y;
         currentSprite.anchor.setTo(endSprite.anchor.x, endSprite.anchor.y); 
         })) { currentSprite.position.copyFrom(currentSprite.originalPosition);
         }
     }
 
+    function processOrder(pet, client) {
+        //If the order matches
+        if (pet.mystuff.required = client.mystuff.required) {
+            if (pet.mystuff.color = client.mystuff.color) {
+                if (pet.mystuff.pattern = client.mystuff.color) {
+                    totalMoney += 1000;
+                }
+                totalMoney += 500;
+            }
+            totalMoney += client.mystuff.money;
+            //orders.push(client.mystuff.index); 5 NOW
+            client.children[0].destroy();
+            client.removeChild(clientText);
+        }
+        else {     //If the order is incorrect!
+            strike++;
+        }
+        orders.push(client.mystuff.index); //always..for testing
+        var i;
+        for (i = 0; i < orders.length; i++) {
+           console.log("Keys currently in orders: " + orders[i]);
+        }
+        
+        pet.kill();
+        client.kill();
+    }
+
     //Add a client to the game when called.
     function addClient() {
-        if(numClients < 3){
+        if(numClients < 3 && numNewClients > 0){
             var client = clients.getFirstExists(false);
 
             // spawn at an open client spot
@@ -354,348 +474,124 @@ window.onload = function() {
                 currentClients[2] = client;                
             }
             //Initialize the client information.
-            var rand = game.rnd.integerInRange(0, description.length - 1);
-            //Each description will only be used once, so check to make sure it hasn't been used already before assigning it to a new client!
-            while (description[rand] == null) {
-                rand = game.rnd.integerInRange(0, 5);
-            }
+            var indeces = stack.pop();
+
             client.mystuff = {};
-            client.mystuff.key = null;
-            client.mystuff.index = null;
+
+            client.mystuff.required = null;
+            client.mystuff.color = null;
+            client.mystuff.pattern = null;
             client.mystuff.descr = null;
             client.mystuff.money = null;
+            client.mystuff.index = null;
+            client.mystuff.title = null;
 
-            client.mystuff.descr = description[rand];
-            client.mystuff.index = rand;
+            client.mystuff.required = requires[indeces];
+            client.mystuff.color = colors[indeces];
+            client.mystuff.pattern = patterns[indeces];
+            client.mystuff.descr = description[indeces];
+            client.mystuff.money = moneys[indeces];
+            client.mystuff.index = indeces;
+            client.mystuff.title = titles[indeces];
 
-
-            //var text1 = client.mystuff.descr;
+            //If a police office shows up
+            if (indeces == 6) {
+                callPopo();
+            }
+            
             //Add text to the clients. 
-            var clientText = game.add.text(0, 0, client.mystuff.descr, { font: "30px Arial", fill: "#000000", align: "left" });
+            var clientText = game.add.text(0, 0, client.mystuff.descr, { font: "24px Arial", fill: "#000000", align: "left" });
             client.addChild(clientText);
             //'Likes to Fight asdf kl;jljl lkjlj;lkj\n;kj jkljkl'
             client.alive = true;
             client.setHealth(15);
             numClients++;
+            numNewClients--;
         }        
     }
 
-    /**
-    function collisionPlanetS(player, planetS) {
-        //Kills planetS and makes the player bigger!
-        if (player.health >= 15) {
-            planetS.kill();
-            player.heal(5);
-
-            //  Increase the score
-            score += 50;
-            scoreText.text = scoreString + score;
-
-            //planetS explodes on impact         //Adapted from Invaders example
-            var explosion = explosions.getFirstExists(false);
-            explosion.reset(planetS.x, planetS.y);
-            explosion.play('explosion', 30, false, true);
-        }
-        else {
-            player.kill();           
-
-            //player explodes on impact         //Adapted from Invaders example
-            var explosion = explosions.getFirstExists(false);
-            explosion.reset(player.x, player.y);
-            explosion.play('explosion', 30, false, true);
-        }
-    }
-
-    function planetCollision(planetS, planetM) {
-        //Rides the planet's gravity
-        planetS.kill();
-    }
-
-    //Cowboy player impact
-    function cowboyPlayer(player, cowboy) {
-        //captures player if too small
-        if (player.health < 15) {
-            player.kill();
-            gameText.text = "Game Over! You have been captured by the cowboys to have your ores harvested :(";
-            gameText.addColor("#ff0000", 0);
-            gameText.visible = true;
-        }
-        else {
-            cowboy.kill();   //Destroys cowboy if large enough, but still takes damage due to explosive engine.
-            player.damage(5);
-            //  Increase the score
-            score += 50;
-            scoreText.text = scoreString + score;
-            var explosion = explosions.getFirstExists(false);
-            explosion.reset(cowboy.x, cowboy.y);
-            explosion.play('explosion', 30, false, true);
-        }
-    }
-
-    function shotPlayer(player, bullet) {
-        //damages player
-        bullet.kill();
-        player.damage(5);
-        var explosion = explosions.getFirstExists(false);
-        explosion.reset(bullet.x, bullet.y);
-        explosion.play('explosion', 30, false, true);
-    }
-
-    function shotAsteroid(asteroid, bullet) {
-        bullet.kill();
-        asteroid.kill();
-        var explosion = explosions.getFirstExists(false);
-        explosion.reset(bullet.x, bullet.y);
-        explosion.play('explosion', 30, false, true);
-    }
-    function shotPlanetM(planetM, bullet) {
-        bullet.kill();
-    }
-    function shotPlanetS(planetS, bullet) {
-        bullet.kill();
-    }
-    function shotStar(star, bullet) {
-        bullet.kill();
-    }
-
-    function cowboyAsteroid(asteroid, cowboy) {
-        asteroid.kill();
-        cowboy.kill();
-        //  Increase the score
-        score += 25;
-        scoreText.text = scoreString + score;
-        var explosion = explosions.getFirstExists(false);
-        explosion.reset(cowboy.x, cowboy.y);
-        explosion.play('explosion', 30, false, true);
-    }
-
-    function cowboyPlanetM(planetM, cowboy) {
-        cowboy.kill();
-        //  Increase the score
-        score += 30;
-        scoreText.text = scoreString + score;
-        var explosion = explosions.getFirstExists(false);
-        explosion.reset(cowboy.x, cowboy.y);
-        explosion.play('explosion', 30, false, true);
-    }
-    function cowboyPlanetS(planetS, cowboy) {
-        cowboy.kill();
-        //  Increase the score
-        score += 40;
-        scoreText.text = scoreString + score;
-        var explosion = explosions.getFirstExists(false);
-        explosion.reset(cowboy.x, cowboy.y);
-        explosion.play('explosion', 30, false, true);
-    }
-
-    function cowboyStar(star, cowboy) {
-        cowboy.kill();
-        //  Increase the score
-        score += 30;
-        scoreText.text = scoreString + score;
-        var explosion = explosions.getFirstExists(false);
-        explosion.reset(cowboy.x, cowboy.y);
-        explosion.play('explosion', 30, false, true);
-    }
-
-    function collisionAsteroidPlanetS(asteroid, planetS) {
-        //Rides the planet's gravity
-         asteroid.rotation = planetS.rotation;
-         game.physics.arcade.velocityFromRotation(asteroid.rotation, game.rnd.integerInRange(150, 300), asteroid.body.velocity);
-    }
-
-    function collisionAsteroidPlanetM(asteroid, planetM) {
-        //Rides the planet's gravity
-        asteroid.rotation = planetM.rotation;
-        game.physics.arcade.velocityFromRotation(asteroid.rotation, game.rnd.integerInRange(175, 325), asteroid.body.velocity);
-    }
-    function collisionAsteroidStar(asteroid, star) {
-        //gg asteroid
-        asteroid.kill();
-        var explosion = explosions.getFirstExists(false);
-        explosion.reset(asteroid.x, asteroid.y);
-        explosion.play('explosion', 30, false, true);
-    }
-
-    function collisionPlanetM(player, planetM) {
-        //Kills planetM and makes the player bigger!
-        if (player.health >= 50) {
-            planetM.kill();
-            player.heal(10);
-
-            //  Increase the score
-            score += 100;
-            scoreText.text = scoreString + score;
-
-            //planetM explodes on impact         //Adapted from Invaders example
-            var explosion = explosions.getFirstExists(false);
-            explosion.reset(planetM.x, planetM.y);
-            explosion.play('explosion', 30, false, true);
-        }
-        else {
-            //Player wasn't big enough to survive the impact:(
-            player.kill();
-
-            //player explodes on impact         //Adapted from Invaders example
-            var explosion = explosions.getFirstExists(false);
-            explosion.reset(player.x, player.y);
-            explosion.play('explosion', 30, false, true);
-        }
-    }
-
-    function collisionStar(player, star) {        
-            player.kill();
-
-            //player explodes on impact         //Adapted from Invaders example
-            var explosion = explosions.getFirstExists(false);
-            explosion.reset(player.x, player.y);
-            explosion.play('explosion', 30, false, true);
+    function callPopo() {
+        game.paused = true;  
         
-    }
-    
-    function planetSStar(planetS, star) {
-        planetS.kill();
-
-        //planetS explodes on impact         //Adapted from Invaders example
-        var explosion = explosions.getFirstExists(false);
-        explosion.reset(planetS.x, planetS.y);
-        explosion.play('explosion', 30, false, true);
-
-    }
-
-    function planetMStar(planetM, star) {
-        planetM.kill();
-
-        //planetM explodes on impact         //Adapted from Invaders example
-        var explosion = explosions.getFirstExists(false);
-        explosion.reset(planetM.x, planetM.y);
-        explosion.play('explosion', 30, false, true);
-
-    }
-
-    function resizePlayer() {
-        if (player.health >= 95) {
-            player.width = 300;
-            player.height = 300;
-        }
-        if (player.health >= 90) {
-            player.width = 285;
-            player.height = 285;
-        }
-        else if (player.health >= 85) {
-            player.width = 270;
-            player.height = 270;
-        }
-        else if (player.health >= 80) {
-            player.width = 255
-            player.height = 255;
-        }
-        else if (player.health >= 75) {
-            player.width = 240;
-            player.height = 240;
-        }
-        else if (player.health >= 70) {
-            player.width = 225;
-            player.height = 225;
-        }
-        else if (player.health >= 65) {
-            player.width = 210;
-            player.height = 210;
-        }
-        else if (player.health >= 60) {
-            player.width = 195;
-            player.height = 195;
-        }
-        else if (player.health >= 55) {
-            player.width = 180;
-            player.height = 180;
-        }
-        else if (player.health >= 50) {
-            player.width = 165;
-            player.height = 165;
-        }
-        else if (player.health >= 45) {
-            player.width = 150;
-            player.height = 150;
-        }
-        else if (player.health >= 40) {
-            player.width = 135;
-            player.height = 135;
-        }
-        else if (player.health >= 35) {
-            player.width = 120;
-            player.height = 120;
-        }
-        else if (player.health >= 30) {
-            player.width = 105;
-            player.height = 105;
-        }
-        else if (player.health >= 25) {
-            player.width = 90;
-            player.height = 90;
-        }
-        else if (player.health >= 20) {
-            player.width = 75;
-            player.height = 75;
-        }
-        else if (player.health >= 15) {
-            player.width = 60;
-            player.height = 60;
-        }
-        else if (player.health >= 10) {
-            player.width = 45;
-            player.height = 45;
-        }
-        else if (player.health >= 5) {
-            player.width = 30;
-            player.height = 30;
+        var i;
+        for (i = 0; i < orders.length; i++) {
+            if (orders[i] == 0 || orders[i] == 7) {  //Shouldn't have supplied that poke client!                
+                numPokeOrders++;
+            }
+            
         }
 
+        if (numPokeOrders > 1) {
+            gameText.visible = true;
+            gameText.text = "Hold up, we're investigating an underground animal fighting ring and need \n to see your previous clients.";
+            gameText.text += "\n\n\nYou have been arrested for the crime of repeatedly supplying \nanimals to a vicious fighting ring that has resulted in numerous cute fuzzy \nanimals being rendered 'unconscious'";
+            
+            gameOver = true;            
+        }
+
+        if (gameOver) {
+            //the "click to restart" handler
+            //game.input.onTap.addOnce(restart,this);
+        }
+        else {
+
+            game.paused = false;
+        }
     }
 
-    function collisionAsteroid(player, asteroid) {
-        //Kills asteroid and makes the player bigger!
-        asteroid.kill();
-        player.heal(2);
-        //  Increase the score
-        score += 10;
-        scoreText.text = scoreString + score;
+    //Only render the amount of pets we need (and initialize them)
+    function addPet() {
+        if (numPets < 15 && numNewClients > 0) {
+            var pet = pets.getFirstExists(false);
+            var rand = game.rnd.integerInRange(0, keys.length-1);
+            // spawn at a random location to the right
+            pet.reset(1280, game.rnd.integerInRange(15, 789));
+            pet.loadTexture(keys[rand], 0, false);
+            //pet.frame = rand;
+            pet.angle = 180;
 
-        //asteroid ship explodes on impact         //Adapted from Invaders example
-        var explosion = explosions.getFirstExists(false);
-        explosion.reset(asteroid.x, asteroid.y);
-        explosion.play('explosion', 30, false, true);
-    }
+            console.log("keys length:" + keys.length);
 
-    //Adapted from the space invaders example
-    function cowboyShoot() {
+            //Initialize the pet information.        
+            pet.mystuff = {};
+            
+            pet.mystuff.required = null;
+            pet.mystuff.color = null;
+            pet.mystuff.pattern = null;
+            pet.mystuff.index = null;
 
-        var bullet = bullets.getFirstExists(false);
-        //update the cowboy's array before shooting to make sure dead men don't shoot
-        livingcowboys.length = 0;
-        livingcowboys = [];
-        cowboys.forEachAlive(function (cowboy) {
-            // put every living enemy in an array
-            livingcowboys.push(cowboy);
-        });
-        if (bullet && livingcowboys.length > 0) {
+            pet.mystuff.required = requires[rand];
+            pet.mystuff.color = colors[rand];
+            pet.mystuff.pattern = patterns[rand];
+            pet.mystuff.index = rand;
 
-            var randomcowboy = game.rnd.integerInRange(0, livingcowboys.length - 1);
-            var shooter = livingcowboys[randomcowboy];
-            // And fire the bullet from this enemy
-            bullet.reset(shooter.x , shooter.y);
-            bullet.angle = shooter.angle;
-            bullet.setHealth(1);
-            //game.physics.arcade.velocityFromAngle(bullet.angle, 250, bullet.body.velocity);\
+            //Add text to the new pets. Adapted from the html5 example: http://www.html5gamedevs.com/topic/7837-how-do-i-align-text-with-a-sprite/
+            var petText = game.add.text(0, 0, pet.mystuff.required, { font: "20px Arial", fill: "#ffffff", align: "left" });
+            pet.addChild(petText);
+            petText.x = (pet.width - petText.width) / 2;
+            petText.y = (pet.height - petText.height) / 2;
 
-            game.physics.arcade.moveToObject(bullet, player, 265);
-            cowboyShootTimer = game.time.now + 1500;
+            // put every living pet in an array
+            pets.forEachAlive(function (pet) {            
+            currentPets.push(pet);
+            });
+            pet.alive = true;
+            numPets++;
         }
     }
-    //function render() {
-        //flameEmitter.debug(10, 522);
+    //Adapted from the invaders example
+    /**function restart() {
+        //Resets the game
+        //resets the life count
+        lives.callAll('revive');
+        //  And brings the aliens back from the dead :)
+        aliens.removeAll();
+        createAliens();
 
-    //}
-
+        //revives the player
+        player.revive();
+        //hides the text
+        stateText.visible = false;
+    }
     **/
 };
