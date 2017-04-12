@@ -82,6 +82,8 @@
     var bonusText;
    
     var clientRush = false;
+    var clientRushText;
+    var clientRushTimer = 0;
     var moneyBoost = false;
     var diplomaticImmunity = false;
 
@@ -104,7 +106,8 @@
     var gameOver = false;
     var numPokeOrders = 0;
     var pokeWarning = false;
-    var policeTimer = 4000;
+    var policeTimer = 0;
+    var policeDelay = 4000;
     var walkTimer = 3000;
 
     var trashbin;
@@ -127,19 +130,19 @@
         titles[8] = "Ms. J Smith";
         titles[9] = "Ms. K Stewart";
         titles[10] = "Ms. M Kasumi";
-        titles[11] = "Com. J Shepard";
+        titles[11] = "Mr. C. Shepard";
 
         //initialize an array to hold all client money values
         moneys[0] = 70000;
         moneys[1] = 0;
         moneys[2] = 30000;
         moneys[3] = 50000;
-        moneys[4] = 45000;
-        moneys[5] = 30000;
+        moneys[4] = 50000;
+        moneys[5] = 40000;
         moneys[6] = 0;
         moneys[7] = 75000;
-        moneys[8] = 40000;
-        moneys[9] = 25000;
+        moneys[8] = 35000;
+        moneys[9] = 40000;
         moneys[10] = 70000;
         moneys[11] = 50000;
 
@@ -147,7 +150,7 @@
         requires[0] = "ADAMANT";   //Poke Fight Club
         requires[1] = "FRIENDLY";   //Zach G.
         requires[2] = "FRIENDLY";
-        requires[3] = "POWDERY";    //Pepsi Addict
+        requires[3] = "POWDERY";    //Crack addict
         requires[4] = "LEAN";       //Hannibal
         requires[5] = "TOTALLY NOT A ROBOT"; //Andromeda
         requires[6] = "FRIEND";     //Poke Police
@@ -155,7 +158,8 @@
         requires[8] = "FRIENDLY";
         requires[9] = "SPARKLY IN THE SUN"; //Live free or Twi-hard
         requires[10] = "ADAMANT";  //Poke Fight Club
-        requires[11] = "ADAMANT";  //Commander Shepard
+        requires[11] = "SECRETLY A SPACE HAMSTER";  //Commander Shepard
+        //requires[12] = "PEPSI"
 
         //initialize an array to hold all of the client descriptions
         description[0] = "I'm looking for a pok-I mean pet \nthat likes to fight, is \n";
@@ -169,6 +173,7 @@
         description[8] = "Hi I'm-What? We all look the same? \nYou're imagining things. I want \nsomething  ";
         description[9] = "I'm lookin for something that is\n";
         description[10] = "Hi, I'd like something that likes \nto fight, is ";
+        description[11] = "I'll give you an endorsement if \nyou can get me a pet that is\n";
 
         //initialize an array to hold all client preferred colors
         colors[0] = "white";
@@ -290,19 +295,16 @@
         trashbin.body.collideWorldBounds = false;
         
         //The player
+        /*
         player = game.add.sprite(800, 400, 'catRight');
         player.anchor.setTo(0.5, 0.5);
         game.physics.enable(player, Phaser.Physics.ARCADE);
         player.body.collideWorldBounds = true;
         player.body.allowRotation = true;
         player.alive = true;
-        //player.setHealth(5);
-        //player.width = 50;
-        //player.height = 50;
-        //player.frame = 0;
         player.animations.add('catRight');
 
-        
+        */
 
 
 
@@ -318,9 +320,13 @@
         strikeText.anchor.setTo(0.5, 0.5);
         strikeText.visible = true;
 
-        bonusText = game.add.text(500, 25, 'Bonus: ', { font: '42px Arial', fill: '#32cd32' });
+        bonusText = game.add.text(475, 25, 'Bonus: ', { font: '42px Arial', fill: '#32cd32' });
         bonusText.anchor.setTo(0.5, 0.5);
         bonusText.visible = true;
+
+        clientRushText = game.add.text(650, 25, 'ClientRush!', { font: '36px Arial', fill: '#32cd32' });
+        clientRushText.anchor.setTo(0.5, 0.5);
+        clientRushText.visible = false;
 
         gameText = game.add.text(game.world.centerX, game.world.centerY, ' ', { font: '40px Arial', fill: '#FF0000', weight: 'bold' });
         gameText.anchor.setTo(0.5, 0.5);
@@ -332,12 +338,11 @@
 
         addClient();
         addPet();
-
     }
 
     
-    function update() {
-               
+    function update() {        
+
             //Give the players more clients at intervals if they're not already maxed for the first 30 seconds //(which is extended with every successful order).
             if ((nextClientAt < game.time.now && game.time.now < gameOverTime) || clientRush) {
                 nextClientAt = game.time.now + 2000;
@@ -352,7 +357,8 @@
                 });
             }
 
-            //Remove and update the number of clients when one 'leaves'. 
+            
+        //Remove and update the number of clients when one 'leaves'. 
             var i;
             for (i = 0; i < 3; i++) {
                 if (currentClients[i] != null && !currentClients[i].alive) {
@@ -365,16 +371,33 @@
                     }
                     currentClients[i] = null;  //garbage collector should clean up the removed clients (As they should be different every time)
                     numClients--;
-                    
-                }
-            }     
-            console.log("NumClients: " + numClients);
 
+                }
+            }
+            //console.log("NumClients: " + numClients);
         //Give the players more pets at 5 second intervals if they're not already maxed at 15.
             if (nextPetAt < game.time.now) {
                 nextPetAt = game.time.now + 1000;
                 addPet();
             }
+
+        //Remove and update the number of clients when one 'leaves'. 
+            var i;
+            for (i = 0; i < 3; i++) {
+                if (currentClients[i] != null && !currentClients[i].alive) {
+                    var m;
+                    for (m = currentClients[i].children.length - 1; m >= 0; m--) {  //Remove the child texts in reverse because arrays are dynamically allocated.
+                        if (currentClients[i].children[m] != null) {
+                            currentClients[i].children[m].destroy();
+                            //currentClients[i].removeChildAt(m);
+                        }
+                    }
+                    currentClients[i] = null;  //garbage collector should clean up the removed clients (As they should be different every time)
+                    numClients--;
+
+                }
+            }
+            //console.log("NumClients: " + numClients);
 
             // Keep pets moving and animated
             /** pets.forEachAlive(function (pet) {
@@ -387,10 +410,22 @@
             }); **/
 
             
-            //Check if the player has dragged a pet into a client (ie made an order!)
+            //Check if the player has dragged a pet into a client (Made an order!)
             pets.forEach(function (pet) {                
                 pet.events.onDragStop.add(function (pet) {
                     if (!game.physics.arcade.overlap(pet, clients, processOrder)) {
+                        pet.position.copyFrom(pet.originalPosition);
+                    }
+                    if (!game.physics.arcade.overlap(pet, trashbin, releasePet)) {
+                        pet.position.copyFrom(pet.originalPosition);
+                    }
+                }, null, this);
+            });
+
+        //Check if the player has dragged a pet into a pet (Breeding!)
+            pets.forEach(function (pet) {
+                pet.events.onDragStop.add(function (pet) {
+                    if (!game.physics.arcade.overlap(pet, pets, makeBabies)) {
                         pet.position.copyFrom(pet.originalPosition);
                     }
                     if (!game.physics.arcade.overlap(pet, trashbin, releasePet)) {
@@ -425,7 +460,13 @@
                 startOverTime = false;
                 gameOverTime = game.time.now + gameOverTime + 5000;
             }
-            
+        
+        //Keep clientRush updated
+            if (clientRush && clientRushTimer < game.time.now) {
+                clientRush = false;
+                clientRushText.visible = false;
+            }
+
         //Check if the game is over or if the game is paused by an event and clear up any text
             if (!gameOver && gameText.visible && policeTimer < game.time.now) {
                 //if (!gameOver) {                    
@@ -450,9 +491,10 @@
             if (game.input.keyboard.isDown(Phaser.Keyboard.RIGHT)) {
                 //player.body.rotation += 4;
                 //player.velocityf
-                player.play('catRight', 1, false, true);
+               // player.play('catRight', 1, false, true);
             }
-
+            
+        
             }
 
 
@@ -472,23 +514,27 @@
         //If the order matches
         if (pet.mystuff.required == client.mystuff.required) {            
             if (pet.mystuff.color == client.mystuff.color) {
-                if (pet.mystuff.pattern == client.mystuff.color) {
-                    totalMoney += 1000;
-                }
-                totalMoney += 500;
+                totalMoney += 15000;
             }
             totalMoney += client.mystuff.money;
             orders.push(client.mystuff.index); //change back soon
             gameOverTime += 5000; //Add an extra boost to the initial guaranteed survival time
 
+        if (client.mystuff.index == 11) {   //Activate the ClientRush feature!
+                gameOverTime += 5000; //Add an extra boost to the initial guaranteed survival time
+                clientRush = true;
+                clientRushText.visible = true;
+                clientRushTimer = game.time.now + 10000;
+            }
         }
-        else if (client.mystuff.index == 6) { //Unless its a police officer who accepts bribes            
+        else if (client.mystuff.index == 6) { //Unless its a police officer who accepts bribes     
+            policeTimer = game.time.now + policeDelay;
             gameText.text = "Oh wow, this little guy is for me? Thanks! In exchange \nlet me remove a strike and speed up any future \ninvestigations a bit~";
             //gameText.addColor('##00008B', 0);
             gameText.alpha = 0.7;
             gameText.visible = true;
-            if (policeTimer > 3000) {  //Reduce future police timers capping at 3 seconds.
-                policeTimer -= 1000;
+            if (policeDelay > 2500) {  //Reduce future police timers capping at 2.5 seconds.
+                policeDelay -= 1000;
             }
             //policeTimer += 3000;
             strike--;  //If the player has any strikes, remove them
@@ -496,7 +542,7 @@
             gameOverTime += 5000; //Add an extra boost to the initial guaranteed survival time
 
         }
-        else if (client.mystuff.index == 1) {
+        else if (client.mystuff.index == 1) {   
             orders.push(client.mystuff.index); 
             gameOverTime += 5000; //Add an extra boost to the initial guaranteed survival time
 
@@ -509,6 +555,7 @@
         for (i = 0; i < orders.length; i++) {
            console.log("Keys currently in orders: " + orders[i]);
         }
+
         //Clean up the text of the objects before removing them from the game
         var m;
         for (m = client.children.length - 1; m >= 0; m--) { //Always end an order when matched
@@ -516,6 +563,7 @@
                 client.children[m].destroy();
                 //client.removeChildAt(m);
             }
+            
         }
         //Also always clean up and end a pet sprite when matched as well
         if (pet.children[0] != null) {
@@ -525,9 +573,18 @@
         numPets--;
         pet.kill();
         client.kill();
+        //Remove and update the number of clients when one is matched, before the call for additional clients
+        var v;
+        for (v = 0; v < 3; v++) {
+            if (currentClients[v] != null && !currentClients[v].alive) {
+                currentClients[v] = null;  //garbage collector should clean up the removed clients (As they should be different every time)
+                numClients--;
+            }
+        }
+       // console.log("NumClients: " + numClients);
         addClient();  //Always add more clients when a match is made. Bad publicity can also garner interest
         addClient();
-        //numClients--;
+        
     }
 
     //Add a client to the game when called.
@@ -647,7 +704,7 @@
 
             gameText.visible = true;
             gameText.text = "This is the Police. We're investigating ";
-            policeTimer += game.time.now;
+            policeTimer = game.time.now + policeDelay;
 
             if (index == 6) { //Personalized text for each investigation
                 gameText.text += "an underground animal \nfighting ring and need to see your previous clients.";
@@ -661,21 +718,21 @@
                 }
             }
             if (numPokeOrders == 1 && !pokeWarning) {  //If only one criminal in the investigation has been supplied.
-                gameText.text += "\n\n\n It appears that you have supplied a criminal once before,  \n" + clientKey + " is part of a vicious fighting ring that has \ninvolved innocent pets. Don't sell pets to fight again. \nThis is your only warning.";
+                policeTimer += 2000; //Add additional 2 seconds so that the player can reada the message!/Punish the player
+                gameText.text += "\n\n\n It appears that you have supplied a criminal,  \n" + clientKey + " is part of a vicious fighting ring that has \ninvolved innocent pets. Don't sell pets to fight again. \nThis is your only warning.";
                 pokeWarning = true;
             }
-            else if (numPokeOrders > 1) {      //Repeat sales to criminals? You're going to jail.                  
+            else if (numPokeOrders > 1 && pokeWarning) {      //Repeat sales to criminals? You're going to jail.                  
                 for (i = 0; i < currentClients.length; i++) {
                     if (currentClients[i] != null) {
-                        currentClients[i].kill();
+                        currentClients[i].destroy();
                     }
                 }
                 gameText.text += "\n\n\nYou are under arrest for the crime of repeatedly supplying \nanimals to a vicious fighting ring including: " + clientKey + "\nthat has caused numerous warm, fuzzy animals to \nbe mercilessly beaten into unconsciousness.";
                 game.paused = true;
                 gameOver = true;
             }
-            //Reinitialize the variable for multiple function calls
-            numPokeOrders = 0;
+            
 
             /**if (gameOver) {
                 //the "click to restart" handler
@@ -768,7 +825,7 @@
             //pet.frame = rand;
             //pet.angle = 180;
 
-            console.log("keys length:" + keys.length);
+            //console.log("keys length:" + keys.length);
 
             //Initialize the pet information.   
             var rand2 = game.rnd.integerInRange(0, requires.length - 1);
@@ -799,6 +856,10 @@
             pet.alive = true;
             numPets++;
         }
+    }
+
+    function makeBabies(pet1, pet2) {
+        console.log("the meeracoal of liife");
     }
 
     function releasePet(pet, trashbin) {
