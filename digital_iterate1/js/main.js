@@ -1,4 +1,4 @@
-window.onload = function() {
+ window.onload = function() {
     // You might want to start with a template that uses GameStates:
     //     https://github.com/photonstorm/phaser/tree/v2.6.2/resources/Project%20Templates/Basic
     // You can copy-and-paste the code from any of the examples at http://examples.phaser.io here.
@@ -19,7 +19,6 @@ window.onload = function() {
     function preload() {
         // Load the assets to be used in game.
         game.load.image('client', 'assets/client.png');
-        game.load.image('asteroid', 'assets/asteroid_mini.png');
         game.load.image('background', 'assets/space_2.jpg');
         game.load.image('bullet', 'assets/bullet.png');
         game.load.image('player', 'assets/player.png');
@@ -27,7 +26,7 @@ window.onload = function() {
         game.load.image('catG', 'assets/cat/catGrey.png');
         game.load.image('catB', 'assets/cat/catBlack.png');
         game.load.image('catW', 'assets/cat/catWhite.png');
-        game.load.spritesheet('pet', 'assets/spaceship_Spritesheet.png', 50, 60);
+        //game.load.spritesheet('catRight', 'assets/spaceship_Spritesheet.png', 50, 60);
         game.load.image('strikes', 'assets/strike.png');
         game.load.image('planetS', 'assets/planetS.png');
         game.load.image('star', 'assets/star.png');
@@ -35,17 +34,19 @@ window.onload = function() {
         game.load.image('trash', 'assets/trash.png');
         //game.load.atlasJSONHash('catRight', 'assets/cat/catRight.png', 'assets/cat/catRight.json');
         game.load.spritesheet('catRight', 'assets/cat/catRight.png', 140, 140);
+        game.load.image('cat', 'assets/cat/catRight1.png');
     }
     
     //Inialize variables
 
     var size = 0;
     var index = 0;
+    var player;
+
 
     var currentSpeed = 0;
     var background;
     var explosions;
-    var player;
     var outputText;
     var bullets;
     var timer = 1000;
@@ -286,6 +287,18 @@ window.onload = function() {
         game.physics.enable(trashbin, Phaser.Physics.ARCADE);
         trashbin.body.collideWorldBounds = false;
         
+        //The player
+        player = game.add.sprite(800, 400, 'catRight');
+        player.anchor.setTo(0.5, 0.5);
+        game.physics.enable(player, Phaser.Physics.ARCADE);
+        player.body.collideWorldBounds = true;
+        player.body.allowRotation = true;
+        player.alive = true;
+        //player.setHealth(5);
+        //player.width = 50;
+        //player.height = 50;
+        //player.frame = 0;
+        player.animations.add('catRight');
 
         
 
@@ -417,7 +430,21 @@ window.onload = function() {
                 gameText.addColor('#FF0000', 0);
                 gameText.visible = false;
                 gameText.alpha = 1.0;
-            }          
+            }
+
+        //The keys to be used in this game
+            game.input.keyboard.addKeyCapture(Phaser.Keyboard.UP);
+            game.input.keyboard.addKeyCapture(Phaser.Keyboard.DOWN);
+            game.input.keyboard.addKeyCapture(Phaser.Keyboard.LEFT);
+            game.input.keyboard.addKeyCapture(Phaser.Keyboard.RIGHT);
+
+        //Adapted from tutorial http://codeperfectionist.com/articles/phaser-js-tutorial-building-a-polished-space-shooter-game-part-2/
+        //Read in user inputs, just in case somebody plays this.
+            if (game.input.keyboard.isDown(Phaser.Keyboard.RIGHT)) {
+                //player.body.rotation += 4;
+                //player.velocityf
+                player.play('catRight', 1, false, true);
+            }
 
             }
 
