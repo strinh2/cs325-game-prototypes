@@ -19,7 +19,7 @@
     function preload() {
         // Load the assets to be used in game.
         game.load.image('client', 'assets/client.png');
-        game.load.image('background', 'assets/space_2.jpg');
+        game.load.image('background', 'assets/grey.jpg');
         game.load.image('bullet', 'assets/bullet.png');
         game.load.image('player', 'assets/player.png');
         game.load.image('catY', 'assets/cat/catYellow.png');
@@ -35,6 +35,7 @@
         //game.load.atlasJSONHash('catRight', 'assets/cat/catRight.png', 'assets/cat/catRight.json');
         game.load.spritesheet('catRight', 'assets/cat/catRight.png', 140, 140);
         game.load.image('cat', 'assets/cat/catRight1.png');
+
     }
     
     //Inialize variables
@@ -65,7 +66,6 @@
     var clientDelay;
     var nextClientAt;
     var clientTimer;
-    var clientRush = false;
 
     //Arrays to hold matching client values
     var description = [];
@@ -78,13 +78,12 @@
     var stack = [];
 
 
-    var planetMs;
-    var livingPlanetMs = [];
-    var nextplanetMAt;
-    var planetMDelay;
-
-    //var hp = '';
-    
+    var bonus = "";
+    var bonusText;
+   
+    var clientRush = false;
+    var moneyBoost = false;
+    var diplomaticImmunity = false;
 
     var profit = 0;
     var totalMoney = 0;
@@ -124,10 +123,11 @@
         titles[4] = "Mr. H Lector";
         titles[5] = "Ms. F Addison";
         titles[6] = "Popo";
-        titles[7] = "Mr. A Ketchup";
+        titles[7] = "Mr. A Ketchum";
         titles[8] = "Ms. J Smith";
         titles[9] = "Ms. K Stewart";
         titles[10] = "Ms. M Kasumi";
+        titles[11] = "Com. J Shepard";
 
         //initialize an array to hold all client money values
         moneys[0] = 70000;
@@ -136,36 +136,38 @@
         moneys[3] = 50000;
         moneys[4] = 45000;
         moneys[5] = 30000;
-        moneys[6] = "";
+        moneys[6] = 0;
         moneys[7] = 75000;
         moneys[8] = 40000;
         moneys[9] = 25000;
         moneys[10] = 70000;
+        moneys[11] = 50000;
 
         //initialize an array to hold all client required feature values
-        requires[0] = "ADAMANT";
-        requires[1] = "FRIENDLY";
+        requires[0] = "ADAMANT";   //Poke Fight Club
+        requires[1] = "FRIENDLY";   //Zach G.
         requires[2] = "FRIENDLY";
-        requires[3] = "POWDERY";
-        requires[4] = "LEAN";
-        requires[5] = "TOTALLY NOT A ROBOT";
-        requires[6] = "ADAMANT"; //Police
-        requires[7] = "ADAMANT";
+        requires[3] = "POWDERY";    //Pepsi Addict
+        requires[4] = "LEAN";       //Hannibal
+        requires[5] = "TOTALLY NOT A ROBOT"; //Andromeda
+        requires[6] = "FRIEND";     //Poke Police
+        requires[7] = "ADAMANT";    //Poke Fight Club
         requires[8] = "FRIENDLY";
-        requires[9] = "SPARKLES IN THE SUN";
-        requires[10] = "ADAMANT";
+        requires[9] = "SPARKLY IN THE SUN"; //Live free or Twi-hard
+        requires[10] = "ADAMANT";  //Poke Fight Club
+        requires[11] = "ADAMANT";  //Commander Shepard
 
         //initialize an array to hold all of the client descriptions
         description[0] = "I'm looking for a pok-I mean pet \nthat likes to fight, is \n";
-        description[1] = "Oh, I don't have any money. Did \nyou know that one is the loneliest \nnumber? My favorite color is\n";
+        description[1] = "";
         description[2] = "Hey I heard you could buy frien-err \npets here. I'm looking for \nsomeone ";
         description[3] = "I-i heard you got some pretty nnice \nproduct here. Hook me up with \nsumthin ";
         description[4] = "Good afternoon, I have a refined \npalate and am in search of \nsomething savory, ";
-        description[5] = "Apologies for the lack of expression, \nmy face is tired. I'd like something \n";
-        description[6] = "I'm with the Police Department and \n need to check your transactions. \nI like ";
-        description[7] = "Hey I'm looking for something \nthat likes to fight, is \n ";
-        description[8] = "HI I'm-What? We all look the same? \nYou're imagining things. I want \nsomething  ";
-        description[9] = "I'm lookin for something that \n";
+        description[5] = "Apologies for the lack of expression, \nmy face is tired. I'd like something\n";
+        description[6] = "";
+        description[7] = "Hey I'm looking for something \nthat likes to fight, is:\n";
+        description[8] = "Hi I'm-What? We all look the same? \nYou're imagining things. I want \nsomething  ";
+        description[9] = "I'm lookin for something that is\n";
         description[10] = "Hi, I'd like something that likes \nto fight, is ";
 
         //initialize an array to hold all client preferred colors
@@ -316,6 +318,10 @@
         strikeText.anchor.setTo(0.5, 0.5);
         strikeText.visible = true;
 
+        bonusText = game.add.text(500, 25, 'Bonus: ', { font: '42px Arial', fill: '#32cd32' });
+        bonusText.anchor.setTo(0.5, 0.5);
+        bonusText.visible = true;
+
         gameText = game.add.text(game.world.centerX, game.world.centerY, ' ', { font: '40px Arial', fill: '#FF0000', weight: 'bold' });
         gameText.anchor.setTo(0.5, 0.5);
         gameText.visible = false;
@@ -429,6 +435,7 @@
                 //}
                 gameText.addColor('#FF0000', 0);
                 gameText.visible = false;
+                game.stage.backgroundColor = "#ADD8E6";
                 gameText.alpha = 1.0;
             }
 
@@ -541,9 +548,8 @@
                 client.reset(0, 675);
                 currentClients[2] = client;                
             }
-            //Initialize the client information.
-            
-            
+
+            //Initialize the client information.                        
             if (stack.length == 0) {   //Reuse customers after they have all appeared
                 stack = null;
                 stack = [description.length];
@@ -573,29 +579,56 @@
             client.mystuff.index = null;
             client.mystuff.title = null;
 
-            client.mystuff.required = requires[indeces];
-            client.mystuff.color = colors[game.rnd.integerInRange(0, colors.length-1)];
-            client.mystuff.pattern = patterns[game.rnd.integerInRange(0, patterns.length - 1)];
-            client.mystuff.descr = description[indeces];
-            client.mystuff.money = moneys[indeces];
-            client.mystuff.index = indeces;
-            client.mystuff.title = titles[indeces];
+            //Initalize the client information depending on the type of client
+            if (indeces == 1) {
+                client.mystuff.required = requires[indeces];
+                client.mystuff.color = colors[game.rnd.integerInRange(0, colors.length - 1)];
+                client.mystuff.pattern = patterns[game.rnd.integerInRange(0, patterns.length - 1)];
+                client.mystuff.descr = "Oh, I don't have any money. Did \nyou know that one is the loneliest \nnumber? Two can be as bad as \none but the loneliest number is-";
+                client.mystuff.money = "";
+                client.mystuff.index = indeces;
+                client.mystuff.title = titles[indeces];
 
-            //If a police officer shows up
-            if (indeces == 6) {
+                //Add text to the clients. 
+                var clientText = game.add.text(14, -28, client.mystuff.descr, { font: "24px Arial", fill: "#000000", align: "left" });
+                client.addChild(clientText);
+            }
+            else if (indeces == 6) {
+                client.mystuff.required = requires[indeces];
+                client.mystuff.color = colors[game.rnd.integerInRange(0, colors.length - 1)];
+                client.mystuff.pattern = patterns[game.rnd.integerInRange(0, patterns.length - 1)];
+                client.mystuff.descr = "I'm with the Police Department \nand I need to check your \ntransactions.";
+                client.mystuff.money = "";
+                client.mystuff.index = indeces;
+                client.mystuff.title = titles[indeces];
+
+                //Add text to the clients. 
+                var clientText = game.add.text(14, -28, client.mystuff.descr, { font: "24px Arial", fill: "#000000", align: "left" });
+                client.addChild(clientText);
+                
                 callPopo(indeces);
             }
-            
-            //Add text to the clients. 
-            var clientText = game.add.text(14, -28, client.mystuff.descr + client.mystuff.required + " and " + client.mystuff.color, { font: "24px Arial", fill: "#000000", align: "left" });
-            client.addChild(clientText);
-            //'Likes to Fight asdf kl;jljl lkjlj;lkj\n;kj jkljkl'
+            else {
+
+                client.mystuff.required = requires[indeces];
+                client.mystuff.color = colors[game.rnd.integerInRange(0, colors.length - 1)];
+                client.mystuff.pattern = patterns[game.rnd.integerInRange(0, patterns.length - 1)];
+                client.mystuff.descr = description[indeces];
+                client.mystuff.money = moneys[indeces];
+                client.mystuff.index = indeces;
+                client.mystuff.title = titles[indeces];
+
+                //Add text to the clients. 
+                var clientText = game.add.text(14, -28, client.mystuff.descr + client.mystuff.required + " and " + client.mystuff.color, { font: "24px Arial", fill: "#000000", align: "left" });
+                client.addChild(clientText);
+                //Print the Money value of each client in the right spot
+                var clientMoney = game.add.text(290, 80, client.mystuff.money, { font: "26px Vivaldi", fill: "#008000", align: "right", weight: "bold" });
+                client.addChild(clientMoney);
+            }
             //Print the title in the right spot
-            var clientTitle = game.add.text(100, -100, client.mystuff.title, { font: "30px Arial", fill: "#000000", align: "up", weight: "bold" });
+            var clientTitle = game.add.text(100, -100, client.mystuff.title, { font: "30px Algerian", fill: "#000000", align: "up", weight: "bold" });
             client.addChild(clientTitle);
-            //Print the Money value of each client in the right spot
-            var clientMoney = game.add.text(290, 80, client.mystuff.money, { font: "26px Arial", fill: "#008000", align: "right", weight: "bold" });
-            client.addChild(clientMoney);
+            
 
             client.alive = true;
             client.setHealth(20);
@@ -606,6 +639,7 @@
     function callPopo(index) {
         var clientKey = null;
         numPokeOrders = 0;
+        game.stage.backgroundColor = "#808080";
         if (!game.paused) {
             pets.forEachAlive(function (pet) {
                 pet.input.draggable = false;
