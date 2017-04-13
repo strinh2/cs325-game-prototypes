@@ -96,7 +96,8 @@
     var moneyBoostTimer = 0;
     var moneyBoostText;
 
-    var ruskieConnections = false;
+    //var russianConnectionsText;
+    //var russianConnectionsTimer = 0;
 
     var profit = 0;
     var totalMoney = 0;
@@ -578,14 +579,17 @@
         else if (client.mystuff.index == 13 && pet.mystuff.required == client.mystuff.required) {   //Activate the russian connections to maintain your monopoly
             //ruskieConnections = true;
             //Remove the evidence
-            var r;
-            for (r = 0; r < orders.length; r++) {
-                if (orders[i] == 0 || orders[i] == 7 || orders[i] == 10) {
-                    orders[i] = 13;     //Record of the evidence removal (potential additional features?)
+            var s;
+            for (s = 0; s < orders.length; s++) {
+                if (orders[s] == 0 || orders[s] == 7 || orders[s] == 10) {    
+                    orders[s] = 13;
+                    console.log("Removed");
                 }
             }
-            gameText.text = "Your client history has been cleared. The police should\nhave a harder time of tracking down your \nclandestine transactions now"
+
+            gameText.text = "Your client history has been cleared. The police should\nhave a harder time of tracking down your \nprevious clandestine transactions now"
             gameText.visible = true;
+            policeTimer = game.time.now + 3000;
             gameText.alpha = 0.8;
         }
         else if (client.mystuff.index == 6) { //Unless its a police officer who accepts bribes     
@@ -800,7 +804,7 @@
             for (i = 0; i < orders.length; i++) {
                 if (orders[i] == 0 || orders[i] == 7 || orders[i] == 10) {  //Shouldn't have supplied that poke client!                
                     numPokeOrders++;
-                    clientKey = titles[orders[i]];
+                    clientKey = titles[orders[i]];  //Grab that poke client's name
                 }
             }
             if (numPokeOrders > 1 && !pokeWarning) {  //If only one criminal in the investigation has been supplied.
