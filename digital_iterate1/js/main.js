@@ -58,6 +58,8 @@
     var numPets;
     var currentPets = [];
     var keys = [];
+    var petString;
+    var petBreedTimer = 1000;
 
     var clients;
     var clientText;
@@ -98,6 +100,7 @@
     var gameText;
     var stateText;
     var strikeText;
+    var petText;
 
     var strike = 0;
     var strikeSprites;
@@ -151,11 +154,11 @@
         requires[1] = "FRIENDLY";   //Zach G.
         requires[2] = "FRIENDLY";
         requires[3] = "POWDERY";    //Crack addict
-        requires[4] = "LEAN";       //Hannibal
+        requires[4] = "LEAN";       //Dr. Lector
         requires[5] = "TOTALLY NOT A ROBOT"; //Andromeda
-        requires[6] = "FRIEND";     //Poke Police
+        requires[6] = "FRIENDLY";     //Poke Police
         requires[7] = "ADAMANT";    //Poke Fight Club
-        requires[8] = "FRIENDLY";
+        requires[8] = "FRIENDLY";  
         requires[9] = "SPARKLY IN THE SUN"; //Live free or Twi-hard
         requires[10] = "ADAMANT";  //Poke Fight Club
         requires[11] = "SECRETLY A SPACE HAMSTER";  //Commander Shepard
@@ -169,7 +172,7 @@
         description[4] = "Good afternoon, I have a refined \npalate and am in search of \nsomething savory, ";
         description[5] = "Apologies for the lack of expression, \nmy face is tired. I'd like something\n";
         description[6] = "";
-        description[7] = "Hey I'm looking for something \nthat likes to fight, is:\n";
+        description[7] = "Hey I'm looking for something \nthat likes to fight, is: ";
         description[8] = "Hi I'm-What? We all look the same? \nYou're imagining things. I want \nsomething  ";
         description[9] = "I'm lookin for something that is\n";
         description[10] = "Hi, I'd like something that likes \nto fight, is ";
@@ -306,7 +309,7 @@
 
         */
 
-
+        petString = "Current Number of Pets: ";
 
         
         //profitboard   //Adapted from Space Invaders example
@@ -327,6 +330,10 @@
         clientRushText = game.add.text(650, 25, 'ClientRush!', { font: '36px Arial', fill: '#32cd32' });
         clientRushText.anchor.setTo(0.5, 0.5);
         clientRushText.visible = false;
+        
+        petText = game.add.text(800, 775, petString + numPets, { font: '32px Arial', fill: '#FF0000', weight: 'bold' });
+        petText.anchor.setTo(0.5, 0.5);
+        petText.visible = true;
 
         gameText = game.add.text(game.world.centerX, game.world.centerY, ' ', { font: '40px Arial', fill: '#FF0000', weight: 'bold' });
         gameText.anchor.setTo(0.5, 0.5);
@@ -345,7 +352,9 @@
 
             //Give the players more clients at intervals if they're not already maxed for the first 30 seconds //(which is extended with every successful order).
             if ((nextClientAt < game.time.now && game.time.now < gameOverTime) || clientRush) {
-                nextClientAt = game.time.now + 2000;
+                if (!clientRush) {
+                    nextClientAt = game.time.now + 2000;
+                }
                 addClient();
             }
           
@@ -375,9 +384,9 @@
                 }
             }
             //console.log("NumClients: " + numClients);
-        //Give the players more pets at 5 second intervals if they're not already maxed at 15.
+        //Give the players more pets at 3 second intervals if they're not already maxed at 15.
             if (nextPetAt < game.time.now) {
-                nextPetAt = game.time.now + 1000;
+                nextPetAt = game.time.now + 2000;
                 addPet();
             }
 
@@ -436,7 +445,7 @@
 
             displayStrikes();
 
-        //update the profit scoreboard, but do it in a satisfying way that players can see
+        //Update the profit scoreboard, but do it in a satisfying way that players can see
             if (profit != totalMoney) {
                 if ((totalMoney - profit) < 501) {
                     profitText.text = profitString + (profit += 50); 
@@ -447,8 +456,10 @@
                 else {
                     profitText.text = profitString + (profit += 1000);
                 }                
-            }            
-        
+            }
+
+        //Update the pet count
+            petText.text = petString + numPets;
             //Is the game over by natural causes?
             if ((numClients == 0 && game.time.now > gameOverTime) || strike >= 3) {
                 gameOver = true;
@@ -530,7 +541,7 @@
         else if (client.mystuff.index == 6) { //Unless its a police officer who accepts bribes     
             policeTimer = game.time.now + policeDelay;
             gameText.text = "Oh wow, this little guy is for me? Thanks! In exchange \nlet me remove a strike and speed up any future \ninvestigations a bit~";
-            //gameText.addColor('##00008B', 0);
+            gameText.addColor('##00008B', 0);
             gameText.alpha = 0.7;
             gameText.visible = true;
             if (policeDelay > 2500) {  //Reduce future police timers capping at 2.5 seconds.
@@ -550,7 +561,6 @@
         else {     //If the order is incorrect
             strike++;
         }
-        //orders.push(client.mystuff.index); //always..for testing
         var i;
         for (i = 0; i < orders.length; i++) {
            console.log("Keys currently in orders: " + orders[i]);
@@ -675,9 +685,21 @@
                 client.mystuff.index = indeces;
                 client.mystuff.title = titles[indeces];
 
-                //Add text to the clients. 
-                var clientText = game.add.text(14, -28, client.mystuff.descr + client.mystuff.required + " and " + client.mystuff.color, { font: "24px Arial", fill: "#000000", align: "left" });
-                client.addChild(clientText);
+                if (indeces == 11) {  //Check if it's a client with an extremely long description
+                    //Add text to the clients. 
+                    var clientText = game.add.text(14, -28, client.mystuff.descr + client.mystuff.required + "\nand " + client.mystuff.color, { font: "24px Arial", fill: "#000000", align: "left" });
+                    client.addChild(clientText);
+                }
+                else if (indeces == 7) {  //Check if it's a client with an extremely long description
+                    //Add text to the clients. 
+                    var clientText = game.add.text(14, -28, client.mystuff.descr + client.mystuff.required + "\nand " + client.mystuff.color, { font: "24px Arial", fill: "#000000", align: "left" });
+                    client.addChild(clientText);
+                }
+                else {
+                    //Add text to the clients. 
+                    var clientText = game.add.text(14, -28, client.mystuff.descr + client.mystuff.required + " and " + client.mystuff.color, { font: "24px Arial", fill: "#000000", align: "left" });
+                    client.addChild(clientText);
+                }
                 //Print the Money value of each client in the right spot
                 var clientMoney = game.add.text(290, 80, client.mystuff.money, { font: "26px Vivaldi", fill: "#008000", align: "right", weight: "bold" });
                 client.addChild(clientMoney);
@@ -688,7 +710,7 @@
             
 
             client.alive = true;
-            client.setHealth(20);
+            client.setHealth(25);
             numClients++;
         }        
     }
@@ -717,7 +739,7 @@
                     clientKey = titles[orders[i]];
                 }
             }
-            if (numPokeOrders == 1 && !pokeWarning) {  //If only one criminal in the investigation has been supplied.
+            if (numPokeOrders > 1 && !pokeWarning) {  //If only one criminal in the investigation has been supplied.
                 policeTimer += 2000; //Add additional 2 seconds so that the player can reada the message!/Punish the player
                 gameText.text += "\n\n\n It appears that you have supplied a criminal,  \n" + clientKey + " is part of a vicious fighting ring that has \ninvolved innocent pets. Don't sell pets to fight again. \nThis is your only warning.";
                 pokeWarning = true;
@@ -728,6 +750,9 @@
                         currentClients[i].destroy();
                     }
                 }
+                pets.forEachAlive(function (pet) { //Game over, so we can be a bit sloppy
+                    pet.kill();
+                });
                 gameText.text += "\n\n\nYou are under arrest for the crime of repeatedly supplying \nanimals to a vicious fighting ring including: " + clientKey + "\nthat has caused numerous warm, fuzzy animals to \nbe mercilessly beaten into unconsciousness.";
                 game.paused = true;
                 gameOver = true;
@@ -757,6 +782,9 @@
             gameText.text = "\n Clients have lost interest in your store so and it's time to close up \n shop. Congrats on your profit of " + profit + " kitty tears!";
         }
         gameText.visible = true;
+        pets.forEachAlive(function (pet) {
+            pet.kill();
+        });
         game.paused = true;
     }
 
@@ -831,11 +859,15 @@
             var rand2 = game.rnd.integerInRange(0, requires.length - 1);
             pet.mystuff = {};
             
+            //Verify that the values are clear
+            pet.mystuff.key = null;
             pet.mystuff.required = null;
             pet.mystuff.color = null;
             pet.mystuff.pattern = null;
             pet.mystuff.index = null;
 
+
+            pet.mystuff.key = rand;
             pet.mystuff.required = requires[rand2];
             pet.mystuff.color = colors[rand];
             pet.mystuff.pattern = patterns[rand2];
@@ -858,8 +890,68 @@
         }
     }
 
+     //Add the breeding feature: create a new pet, but draw characteristics from parent
     function makeBabies(pet1, pet2) {
-        console.log("the meeracoal of liife");
+        console.log("the meeracoal of life");
+        if (numPets < 15 && petBreedTimer < game.time.now) {
+            petBreedTimer = game.time.now + 1500;
+            var pet = pets.getFirstExists(false);
+            var rand = game.rnd.integerInRange(0, 1);
+            var childKey;
+            var childRequires;
+   
+            //Select which parent sprite to use
+            if (rand == 0) {
+                childKey = pet1.mystuff.key;
+            }
+            else {
+                childKey = pet2.mystuff.key;
+            }
+
+            var random = game.rnd.integerInRange(0, 1);
+            //Select which parent requirement to use
+            if (random == 0) {
+                childRequires = pet1.mystuff.key;
+            }
+            else {
+                childRequires = pet2.mystuff.key;
+            }
+            // spawn at a random location to the right
+            pet.reset(game.rnd.integerInRange(game.world.centerX, 1100), game.rnd.integerInRange(75, 700));
+            pet.loadTexture(keys[childKey], 0, false);
+            //pet.frame = rand;
+            //pet.angle = 180;
+            
+            //Initialize the pet information.
+            pet.mystuff = {};
+
+            pet.mystuff.key = null;
+            pet.mystuff.required = null;
+            pet.mystuff.color = null;
+            pet.mystuff.pattern = null;
+            pet.mystuff.index = null;
+            
+            pet.mystuff.key = keys[childKey];
+            pet.mystuff.required = requires[childRequires];
+            pet.mystuff.color = colors[childKey];
+            pet.mystuff.pattern = patterns[pet1.mystuff.index];
+            pet.mystuff.index = "";
+
+            //Add text to the new pets. Adapted from the html5 example: http://www.html5gamedevs.com/topic/7837-how-do-i-align-text-with-a-sprite/
+            var petText = game.add.text(0, 0, pet.mystuff.required, { font: "20px Arial", fill: "#ffffff", align: "left" });
+            pet.addChild(petText);
+            petText.anchor.x = 0.5;
+            petText.anchor.y = 0.5;
+            petText.x = ((pet.width - petText.width) / 2) + 15;
+            petText.y = (pet.height - 100) / 2;
+
+            // put every living pet in an array
+            pets.forEachAlive(function (pet) {
+                currentPets.push(pet);
+            });
+            pet.alive = true;
+            numPets++;
+        }
     }
 
     function releasePet(pet, trashbin) {
