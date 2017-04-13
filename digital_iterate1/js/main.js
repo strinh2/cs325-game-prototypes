@@ -35,6 +35,9 @@
         //game.load.atlasJSONHash('catRight', 'assets/cat/catRight.png', 'assets/cat/catRight.json');
         game.load.spritesheet('catRight', 'assets/cat/catRight.png', 140, 140);
         game.load.image('cat', 'assets/cat/catRight1.png');
+        game.load.audio('coins', 'assets/coins.mp3');
+        game.load.audio('meow', 'assets/meow.wav');
+        game.load.audio('screech', 'assets/screech.wav');
 
     }
     
@@ -60,6 +63,8 @@
     var keys = [];
     var petString;
     var petBreedTimer = 1000;
+    var meow;
+    var screech;
 
     var clients;
     var clientText;
@@ -79,7 +84,7 @@
     var orders = [];
     var stack = [];
 
-
+    var coins;
     var bonus = "";
     var bonusText;
    
@@ -91,7 +96,7 @@
     var moneyBoostTimer = 0;
     var moneyBoostText;
 
-    var diplomaticImmunity = false;
+    var ruskieConnections = false;
 
     var profit = 0;
     var totalMoney = 0;
@@ -130,14 +135,16 @@
         titles[1] = "Mr. Z Galifianakis";
         titles[2] = "Mr. M Cera";
         titles[3] = "Mr. J Smith";
-        titles[4] = "Mr. H Lector";
+        titles[4] = "Dr. H Lector";
         titles[5] = "Ms. F Addison";
         titles[6] = "Popo";
         titles[7] = "Mr. A Ketchum";
         titles[8] = "Ms. J Smith";
         titles[9] = "Ms. K Stewart";
         titles[10] = "Ms. M Kasumi";
-        titles[11] = "Mr. C. Shepard";
+        titles[11] = "Cmr. J Shepard";
+        titles[12] = "Ms. K Jenner";
+        titles[13] = "Mr. V Putin";
 
         //initialize an array to hold all client money values
         moneys[0] = 70000;
@@ -152,21 +159,24 @@
         moneys[9] = 40000;
         moneys[10] = 70000;
         moneys[11] = 50000;
+        moneys[12] = 25000;
+        moneys[13] = 0;
 
         //initialize an array to hold all client required feature values
         requires[0] = "ADAMANT";   //Poke Fight Club
-        requires[1] = "FRIENDLY";   //Zach G.
+        requires[1] = "HAS PEPSI";   //Zach G.
         requires[2] = "FRIENDLY";
         requires[3] = "POWDERY";    //Crack addict
-        requires[4] = "LEAN";       //Dr. Lector
+        requires[4] = "LEAN";       //Dr. Hannibal
         requires[5] = "TOTALLY NOT A ROBOT"; //Andromeda
         requires[6] = "FRIENDLY";     //Poke Police
         requires[7] = "ADAMANT";    //Poke Fight Club
         requires[8] = "FRIENDLY";  
-        requires[9] = "SPARKLY IN THE SUN"; //Live free or Twi-hard
+        requires[9] = "FRIENDLY"; //Live free or Twi-hard
         requires[10] = "ADAMANT";  //Poke Fight Club
         requires[11] = "SECRETLY A SPACE HAMSTER";  //Commander Shepard
-        //requires[12] = "PEPSI"
+        requires[12] = "HAS PEPSI"  //#PepsiLivesMatter
+        requires[13] = "GULLIBLE"  
 
         //initialize an array to hold all of the client descriptions
         description[0] = "I'm looking for a pok-I mean pet \nthat likes to fight, is \n";
@@ -178,9 +188,11 @@
         description[6] = "";
         description[7] = "Hey I'm looking for something \nthat likes to fight, is: ";
         description[8] = "Hi I'm-What? We all look the same? \nYou're imagining things. I want \nsomething  ";
-        description[9] = "I'm lookin for something that is\n";
+        description[9] = "I'm looking for a pet that is \n";
         description[10] = "Hi, I'd like something that likes \nto fight, is ";
         description[11] = "I'll give you an endorsement if \nyou can get me a pet that is\n";
+        description[12] = "I believe in equality for human\nand petkind; so long as one\n";
+        description[13] = "I can clean your client history for\na small price. I want an \norangishish, GULLIBLE pet that\n will follow my every bidding";
 
         //initialize an array to hold all client preferred colors
         colors[0] = "white";
@@ -243,14 +255,10 @@
         numClients = 0;
 
                 
-
-        //game.physics.arcade.enable(client, Phaser.Physics.ARCADE);
-        //client.anchor.setTo(0.5, 1);
-        //client.tint = 0xff00ff;
-
-        //Drag and Drop!  //Adapted from the html 5 game devs help thread: http://www.html5gamedevs.com/topic/13869-drag-and-drop/
-        //player = game.add.sprite(500, 500, 'player');
-
+        //Add coin sound effect
+        coins = game.add.audio('coins');
+        meow = game.add.audio('meow');
+        screech = game.add.audio('screech');
         //Create the pets 
         pets = game.add.group();
         pets.enableBody = true;
@@ -331,11 +339,11 @@
         bonusText.anchor.setTo(0.5, 0.5);
         bonusText.visible = true;
 
-        clientRushText = game.add.text(650, 25, 'ClientRush!', { font: '36px Arial', fill: '#0000A0' });
+        clientRushText = game.add.text(640, 25, 'ClientRush!', { font: '36px Arial', fill: '#0000A0', weight: 'bold' });
         clientRushText.anchor.setTo(0.5, 0.5);
         clientRushText.visible = false;
         
-        moneyBoostText = game.add.text(900, 25, '2xMoney!', { font: '36px Arial', fill: '#32cd32' });
+        moneyBoostText = game.add.text(825, 25, '2xMoney!', { font: '36px Arial', fill: '#32cd32', weight: 'bold' });
         moneyBoostText.anchor.setTo(0.5, 0.5);
         moneyBoostText.visible = false;
         
@@ -537,7 +545,7 @@
 
     function processOrder(pet, client) {
         //If the order matches
-        if (pet.mystuff.required == client.mystuff.required) {            
+        if (pet.mystuff.required == client.mystuff.required && client.mystuff.index != 13) {            
             if (pet.mystuff.color == client.mystuff.color) {
                 if (moneyBoost) {
                     totalMoney += 30000;
@@ -555,23 +563,40 @@
             orders.push(client.mystuff.index); //change back soon
             gameOverTime += 5000; //Add an extra boost to the initial guaranteed survival time
 
-        if (client.mystuff.index == 11) {   //Activate the ClientRush feature!
-                gameOverTime += 5000; //Add an extra boost to the initial guaranteed survival time
+            if (client.mystuff.index == 11) {   //Activate the ClientRush feature!
                 clientRush = true;
                 clientRushText.visible = true;
-                clientRushTimer = game.time.now + 10000;
+                clientRushTimer = game.time.now + 12500;
             }
+            if (client.mystuff.index == 12) {   //Activate that nice Pepsi endorsement $$ boost!
+                moneyBoost = true;
+                moneyBoostText.visible = true;
+                moneyBoostTimer = game.time.now + 10000;
+            }
+            coins.play();
+        }
+        else if (client.mystuff.index == 13 && pet.mystuff.required == client.mystuff.required) {   //Activate the russian connections to maintain your monopoly
+            //ruskieConnections = true;
+            //Remove the evidence
+            var r;
+            for (r = 0; r < orders.length; r++) {
+                if (orders[i] == 0 || orders[i] == 7 || orders[i] == 10) {
+                    orders[i] = 13;     //Record of the evidence removal (potential additional features?)
+                }
+            }
+            gameText.text = "Your client history has been cleared. The police should\nhave a harder time of tracking down your \nclandestine transactions now"
+            gameText.visible = true;
+            gameText.alpha = 0.8;
         }
         else if (client.mystuff.index == 6) { //Unless its a police officer who accepts bribes     
             policeTimer = game.time.now + policeDelay;
             gameText.text = "Oh wow, this little guy is for me? Thanks! In exchange \nlet me remove a strike and speed up any future \ninvestigations a bit~";
             gameText.addColor('##00008B', 0);
-            gameText.alpha = 0.7;
+            gameText.alpha = 0.8;
             gameText.visible = true;
             if (policeDelay > 2500) {  //Reduce future police timers capping at 2.5 seconds.
                 policeDelay -= 1000;
             }
-            //policeTimer += 3000;
             strike--;  //If the player has any strikes, remove them
             orders.push(client.mystuff.index); //change back soon
             gameOverTime += 5000; //Add an extra boost to the initial guaranteed survival time
@@ -584,6 +609,8 @@
         }
         else {     //If the order is incorrect
             strike++;
+            screech.play();
+            screech.volume = 0.2;
         }
         var i;
         for (i = 0; i < orders.length; i++) {
@@ -596,8 +623,7 @@
             if (client.children[m] != null) {
                 client.children[m].destroy();
                 //client.removeChildAt(m);
-            }
-            
+            }            
         }
         //Also always clean up and end a pet sprite when matched as well
         if (pet.children[0] != null) {
@@ -615,7 +641,8 @@
                 numClients--;
             }
         }
-       // console.log("NumClients: " + numClients);
+        // console.log("NumClients: " + numClients);
+        addPet();
         addClient();  //Always add more clients when a match is made. Bad publicity can also garner interest
         addClient();
         
@@ -698,6 +725,19 @@
                 client.addChild(clientText);
                 
                 callPopo(indeces);
+            }
+            else if (indeces == 13) {
+                client.mystuff.required = requires[indeces];
+                client.mystuff.color = colors[1];
+                client.mystuff.pattern = patterns[game.rnd.integerInRange(0, patterns.length - 1)];
+                client.mystuff.descr = description[indeces];
+                client.mystuff.money = "";
+                client.mystuff.index = indeces;
+                client.mystuff.title = titles[indeces];
+
+                //Add text to the clients. 
+                var clientText = game.add.text(14, -28, client.mystuff.descr, { font: "24px Arial", fill: "#000000", align: "left" });
+                client.addChild(clientText);
             }
             else {
 
@@ -911,12 +951,14 @@
             });
             pet.alive = true;
             numPets++;
+            meow.play();
+            meow.volume = 0.1;
         }
     }
 
      //Add the breeding feature: create a new pet, but draw characteristics from parent
     function makeBabies(pet1, pet2) {
-        console.log("the meeracoal of life");
+        //console.log("the meeracoal of life");
         if (numPets < 15 && petBreedTimer < game.time.now) {
             petBreedTimer = game.time.now + 1500;
             var pet = pets.getFirstExists(false);
@@ -935,10 +977,10 @@
             var random = game.rnd.integerInRange(0, 1);
             //Select which parent requirement to use
             if (random == 0) {
-                childRequires = pet1.mystuff.key;
+                childRequires = pet1.mystuff.required;
             }
             else {
-                childRequires = pet2.mystuff.key;
+                childRequires = pet2.mystuff.required;
             }
             // spawn at a random location to the right
             pet.reset(game.rnd.integerInRange(game.world.centerX, 1100), game.rnd.integerInRange(75, 700));
@@ -955,8 +997,8 @@
             pet.mystuff.pattern = null;
             pet.mystuff.index = null;
             
-            pet.mystuff.key = keys[childKey];
-            pet.mystuff.required = requires[childRequires];
+            pet.mystuff.key = childKey;
+            pet.mystuff.required = childRequires;
             pet.mystuff.color = colors[childKey];
             pet.mystuff.pattern = patterns[pet1.mystuff.index];
             pet.mystuff.index = "";
@@ -975,6 +1017,8 @@
             });
             pet.alive = true;
             numPets++;
+            meow.play();
+            meow.volume = 0.1;
         }
     }
 

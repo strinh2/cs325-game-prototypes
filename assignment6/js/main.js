@@ -290,6 +290,7 @@
         trashbin.body.collideWorldBounds = false;
         
         //The player
+        /*
         player = game.add.sprite(800, 400, 'catRight');
         player.anchor.setTo(0.5, 0.5);
         game.physics.enable(player, Phaser.Physics.ARCADE);
@@ -301,7 +302,7 @@
         //player.height = 50;
         //player.frame = 0;
         player.animations.add('catRight');
-
+        */
         
 
 
@@ -450,7 +451,7 @@
             if (game.input.keyboard.isDown(Phaser.Keyboard.RIGHT)) {
                 //player.body.rotation += 4;
                 //player.velocityf
-                player.play('catRight', 1, false, true);
+                //player.play('catRight', 1, false, true);
             }
 
             }
