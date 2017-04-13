@@ -86,7 +86,11 @@
     var clientRush = false;
     var clientRushText;
     var clientRushTimer = 0;
+
     var moneyBoost = false;
+    var moneyBoostTimer = 0;
+    var moneyBoostText;
+
     var diplomaticImmunity = false;
 
     var profit = 0;
@@ -327,9 +331,13 @@
         bonusText.anchor.setTo(0.5, 0.5);
         bonusText.visible = true;
 
-        clientRushText = game.add.text(650, 25, 'ClientRush!', { font: '36px Arial', fill: '#32cd32' });
+        clientRushText = game.add.text(650, 25, 'ClientRush!', { font: '36px Arial', fill: '#0000A0' });
         clientRushText.anchor.setTo(0.5, 0.5);
         clientRushText.visible = false;
+        
+        moneyBoostText = game.add.text(900, 25, '2xMoney!', { font: '36px Arial', fill: '#32cd32' });
+        moneyBoostText.anchor.setTo(0.5, 0.5);
+        moneyBoostText.visible = false;
         
         petText = game.add.text(800, 775, petString + numPets, { font: '32px Arial', fill: '#FF0000', weight: 'bold' });
         petText.anchor.setTo(0.5, 0.5);
@@ -478,6 +486,12 @@
                 clientRushText.visible = false;
             }
 
+        //Keep moneyBoost updated
+            if (moneyBoost && moneyBoostTimer < game.time.now) {
+                moneyBoost = false;
+                moneyBoostText.visible = false;
+            }
+
         //Check if the game is over or if the game is paused by an event and clear up any text
             if (!gameOver && gameText.visible && policeTimer < game.time.now) {
                 //if (!gameOver) {                    
@@ -525,9 +539,19 @@
         //If the order matches
         if (pet.mystuff.required == client.mystuff.required) {            
             if (pet.mystuff.color == client.mystuff.color) {
-                totalMoney += 15000;
+                if (moneyBoost) {
+                    totalMoney += 30000;
+                }
+                else {
+                    totalMoney += 15000;
+                }
             }
-            totalMoney += client.mystuff.money;
+            if (moneyBoost) {
+                totalMoney += (2 * client.mystuff.money);
+            }
+            else {
+                totalMoney += client.mystuff.money;
+            }
             orders.push(client.mystuff.index); //change back soon
             gameOverTime += 5000; //Add an extra boost to the initial guaranteed survival time
 
@@ -741,7 +765,7 @@
             }
             if (numPokeOrders > 1 && !pokeWarning) {  //If only one criminal in the investigation has been supplied.
                 policeTimer += 2000; //Add additional 2 seconds so that the player can reada the message!/Punish the player
-                gameText.text += "\n\n\n It appears that you have supplied a criminal,  \n" + clientKey + " is part of a vicious fighting ring that has \ninvolved innocent pets. Don't sell pets to fight again. \nThis is your only warning.";
+                gameText.text += "\n\n\n It appears that you have supplied a criminal, " + clientKey + "\nis part of a vicious fighting ring that has \ninvolved innocent pets. Don't sell pets to fight again. \nThis is your only warning.";
                 pokeWarning = true;
             }
             else if (numPokeOrders > 1 && pokeWarning) {      //Repeat sales to criminals? You're going to jail.                  
