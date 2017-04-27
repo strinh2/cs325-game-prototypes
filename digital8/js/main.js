@@ -57,7 +57,7 @@ window.onload = function() {
     var statusText;
     var statusAlpha;
 
-    var timer = 45;
+    var timer = 60;
     var timerText;
     var timerString;
     var clock1;
