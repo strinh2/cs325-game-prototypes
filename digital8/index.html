@@ -1,0 +1,116 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Time Is Running Out</title>
+    <script src="js/phaser.js"></script>
+    <script src="js/main.js"></script>
+
+<style>
+body
+{
+    color: #777;
+    font-family: "Avenir", Verdana, sans-serif;
+}
+#readme
+{
+    margin-top: 10px;
+}
+</style>
+
+</head>
+<body>
+<div id="game"></div>
+<div id="readme">
+<h2>The Pet Parlor</h2>
+<ul>
+
+<li><strong>High Concept:</strong>
+    Maximize your profits by correctly matching the appropriate pet for each client but hurry, if you take too long they may take their business elsewhere!
+</li>
+
+<li><strong>Theme:</strong>
+The theme is from the "Pet Shop"
+</li>
+
+<li><strong>Mandated Variety:</strong>
+All dragging and dropping with the mouse. Lots of random factors, but the game is deterministic by nature. The game has been modified to be less harsh to players over time, but the difficulty is still balanced out by resource management of pets through the 15 pet cap.
+</li>
+
+<li><strong>Player Experience Goals:</strong>
+    To have a feeling of accomplishment as you sell living creatures for monetary benefit; to have fun matching orders to appropriate customers to maximize profit, and to enjoy an experience based on the player selection in clients.
+</li>
+
+<li><strong>Gameplay:</strong>
+Drag and drop pets with matching characteristics to the appropriate order. Each client will have a brief description including their preferences and monetary value with each successful match. Make as much money as possible before the fad runs out, but be careful, if you get too many orders wrong then it's also game over!
+</li>
+
+<li><strong>Prototype Goal:</strong>
+The goal is to build upon basic matching games by including incentives and ramifications of supplying certain clients.
+</li>
+
+<li><strong>Features:</strong>
+<ul>
+<li>Game mechanic: A system that rewards or punishes the player based on decisions made in selecting clients, all the while under the time pressure of maximizing profits in a matching game. This is further expanded upon by the features listed below:</li>
+<li> Client rush: A feature that when activated guarantees clients to appear and prevents game over by natural causes for a moderate period of time </li>
+</li>Money Boost: A modifier that is activated when the player takes a cool, refreshing monetary endorsement that doubles the amount of profit gained for a brief period of time. </li>
+<li> Police investigation: Randomly a police officer will appear from the client pool and prevent the player from making transactions as they conduct an investigation. Be careful who you sell to! </li>
+<li> Survived a police encounter? It might be a good idea to offer the officer something to grease their wheels</li>
+<li> Russian Connections: If certain illegal transactions have already been made, you may have to rely on making connections in order to cover up the evidence for the next police encounter!</li>
+<li> Breeding: Need more pets of a certain color/requirement? Try dragging two pets together while you still have space in you pet pen to create a new child pet with characteristics matching its parents! Make gratuitous use of the trashbin 'release into the wild' feature to avoid the pet number cap!</li>
+<li> SFX for new cats and orders!
+</ul>
+<li><strong>Setting/Premise:</strong>
+    The trading and selling of soft, fuzzy animals has blown up, and as an enterprising individual, you have decided to profit off the craze with animal pris-shop of your own, but be careful, it's a rough business and criminal activity has risen recently in the area!
+</li>
+
+<li><strong>Story:</strong>
+You are a young, up and coming entrepreneur who is try to make a living in the world. 
+</li>
+
+<li><strong>Target Audience:</strong>
+People who have low expectations and enjoy matching games.
+</li>
+
+<li><strong>Play Time:</strong>
+As long as the player can survive, which can be anywhere from 30s to several minutes
+</li>
+
+<li><strong>Strategies:</strong>
+The main strategy will probably be to avoid the dangerous (and more profitable clients) until the very end and farm the cheaper, safer clients, and then hit as many risky clients as possible right after a police officer leaves. All players will likely prioritize the pepsi endorsement client for the money bonus 
+as much as possible upon discovery. Breeding will probably be used to create/farm multiple important/necessary pet characteristics, and players can actually use the client rush to maintain survivability for a long time if they can combine this with the russian connections features before each police
+encounter, though naturally the risk willl rise over time as more clients appear and breeding gets harder to accomplish quickly once the pet cap is reached (which is balanced by the trashbin's 'release' feature).
+</li>
+
+<li><strong>Prototype Assets:</strong>
+
+<ul>
+<li>Game Background: Self Made</li>
+<li>Background After game: <a href="http://arts-health.com/themirrorproject/wp-content/uploads/2013/09/dark-blue-background.jpg"> Blue background</a> </li>
+<li>Clock Sound Effect: <a href="https://www.youtube.com/watch?v=Bv_J0j9hr0E">Clock</a> </li>
+<li>TV White Noise: <a href="https://www.soundjay.com/tv-static-sound-effect.html">Static</a></li>
+<li>Smash SFX: <a href="https://www.youtube.com/watch?v=dVfrS8dSfJ4"> Smash </a></li>
+<li> Hissing SFX: <a href = "https://www.youtube.com/watch?v=WNveatekvd0"> Gas SFX </a></li>
+<li>Electric SFX: <a href="http://www.freesoundeffects.com/free-sounds/electric-sounds-10032/"> Electric smash </a></li>
+<li> Knock SFX: <a href = "http://www.freesfx.co.uk/sfx/knock"> Knock knock </a></li>
+<li>Window SFX: <a href="http://www.freesfx.co.uk/sfx/window"> Window </a></li>
+<li> FootStep SFX: <a href = "https://www.youtube.com/watch?v=A16D2GkKbq4"> Footsteps </a></li>
+<li> Knife SFX: <a href = "https://www.youtube.com/watch?v=jt-p9sTpS9k"> Eww </a><li>
+</ul>
+</li>
+
+<li><strong>Prototype Closest Other Game:</strong>
+NOTE TO GRADER: I misread the instructions and accidentally updated my original iteration of the game pretty late in the next iteration process, but after the grading*, sorry for the inconvenience :/
+</li>
+<li> Graphically much did not change, however I modified the rules of the game based on user feedback, for example speeding up pet spawn while increasing client stay time to make the game a bit slower paced and less chaotic. A visible pet cap is introduced to accomadate the new
+breeding feature that allows players to create a new pet that shares characteristics with its parent pets. This allows a small economy of resource management where the player is encouraged to use the 'release into the wild' trashbin feature as well and adds an element of
+the player predicting and controlling the pets that have in stock in anticipation for certain clients, thereby increasing the amount of determinism by the player which reduces the punishing factors of the random generator over time. Also modified the $$$ values of certain clients to match their
+roles and to encourage the player to play more risky, which is furthere supported by a guranteed warning before the player can be arrested. This is further expanded upon by introducing the Russian Connection feature, which can be activated by making a deal with a certain russian client
+that can wipe out the illegal transactions in the player's order history, giving the player more leeway before the next police encounter. Lastly two gameplay modifiers were introduced with this iteration including: Money Boost, which doubles the amount of profit obtained with every successful transaction
+during the modifer's effect time, and Client Rush which gurantees a constant flow of clients for a period of time. Both modifiers can be activated during the same time and change the user strategies and aim greatly, money boost to maximize profit, and client rush which can sustain a players life at the risk
+of higher police appearance. Client rush also allows players more time to manage their pet economy and breed, which will be difficult for all but the quickest players during the normal client pace. Lastly SFX were also introduced to spice up the gameplay experience a bit. I hope you like cats!
+
+</ul>
+</div>
+</body>
+</html>
