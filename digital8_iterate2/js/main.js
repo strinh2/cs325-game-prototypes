@@ -13,13 +13,13 @@ window.onload = function() {
     
     "use strict";
     
-    var game = new Phaser.Game( 1000, 765, Phaser.AUTO, 'game', { preload: preload, create: create, update: update } );
+    var game = new Phaser.Game( 1350, 765, Phaser.AUTO, 'game', { preload: preload, create: create, update: update } );
     
     
 
     function preload() {
         // Load the assets to be used in game.
-        game.load.image('background', 'assets/game3.png');
+        game.load.image('background', 'assets/game3_black.png');
         game.load.image('background2', 'assets/background2.jpg');
         game.load.image('tv', 'assets/tv.png');
         game.load.image('bat', 'assets/bat.png');
@@ -71,32 +71,62 @@ window.onload = function() {
     var neutralEnding = false;
 
     var tv;
+    var tv2;
     var tvText;
+    var tvText2;
     var tvHasBeenClicked = false;
+    var tvHasBeenClicked2 = false;
     var bat;
+    var bat2;
     var batText;
+    var batText2;
+    var batHasBeenClicked = false;
     var plant;
+    var plant2;
     var plantText;
+    var plantText2;
     var plantHasBeenClicked = false;
+    var plantHasBeenClicked2 = false;
     var stove;
+    var stove2;
     var stoveText;
+    var stoveText2;
     var stoveHasBeenClicked = false;
+    var stoveHasBeenClicked2 = false;
     var stoveSet = false;
     var outlet;
+    var outlet2;
     var outletText;
+    var outletText2;
+    var outletHasBeenClicked = false
     var door;
+    var door2;
     var doorText;
+    var doorText2;
     var doorHasBeenClicked = false;
+    var doorHasBeenClicked2 = false;
     var window;
+    var window2;
     var windowText;
+    var windowText2;
     var windowHasBeenClicked = false;
+    var windowHasBeenClicked2 = false;
     var floor;
+    var floor2;
     var floorText;
+    var floorText2;
     var floorHasBeenClicked = false;
+    var floorHasBeenClicked2 = false;
     var knife;
+    var knife2;
     var knifeText;
+    var knifeText2;
+    var knifeHasBeenClicked = false;
     var person;
+    var person2;
     var personText;
+    var personText2;
+    var personHasBeenClicked = false;
 
     var staticSFX;
     var smash;
@@ -108,10 +138,12 @@ window.onload = function() {
     var footstep;
     var stab;
 
+    var infoText;
+
     function create() {
         
 
-        background = game.add.tileSprite(0, 0, 1000, 765, 'background');
+        background = game.add.tileSprite(0, 0, 1350, 765, 'background');
         //Start the Arcade Physics systems
         game.physics.startSystem(Phaser.Physics.ARCADE);
 
@@ -124,7 +156,6 @@ window.onload = function() {
         tv.body.collideWorldBounds = true;
         tv.alive = true;
         tv.inputEnabled = true;
-        //tv.animations.add('catRight');
         tv.events.onInputDown.add(clickTV, this);
 
         //Add text to the new tv 
@@ -147,7 +178,7 @@ window.onload = function() {
         plant.events.onInputDown.add(clickPlant, this);
 
         //Add text to the new plants. 
-        plantText = game.add.text(0, 0, "Vase GP Cost: 15 \nMaybe this'll distract him", { font: "20px Chiller", fill: "#ffffff", align: "center" });
+        plantText = game.add.text(0, 0, "Plant GP Cost: 15 \nMaybe this'll distract him", { font: "20px Chiller", fill: "#ffffff", align: "center" });
         plant.addChild(plantText);
         plantText.anchor.x = 0.5;
         plantText.anchor.y = 0.5;
@@ -300,7 +331,7 @@ window.onload = function() {
         }, null, this);
 
         //Add text to the new bat 
-        batText = game.add.text(0, 0, "Bat GP Cost: 95 \nMaybe I can drag this somewhere..", { font: "20px Chiller", fill: "#00FFFF", align: "center" });
+        batText = game.add.text(0, 0, "Bat GP Cost: 95 /nIt'd take a lot of effort to drag \nthis...", { font: "20px Chiller", fill: "#00FFFF", align: "center" });
         bat.addChild(batText);
         batText.anchor.x = 0.5;
         batText.anchor.y = 0.5;
@@ -333,7 +364,7 @@ window.onload = function() {
         }, null, this);
 
         //Add text to the new knife 
-        knifeText = game.add.text(0, 0, "Knife GP Cost: 25 \nIt'd take a lot of effort to throw this...", { font: "20px Chiller", fill: "#00FFFF", align: "center" });
+        knifeText = game.add.text(0, 0, "Knife GP Cost: 25 \nMaybe I can drag this somewhere...", { font: "20px Chiller", fill: "#00FFFF", align: "center" });
         knife.addChild(knifeText);
         knifeText.anchor.x = 0.5;
         knifeText.anchor.y = 0.5;
@@ -363,15 +394,15 @@ window.onload = function() {
         gpText.alpha = 1;
 
         timerString = "Time Remaining: ";
-        timerText = game.add.text(game.world.centerX - 60, 35, timerString + timer, { font: '64px Chiller', fill: '#ff0000' });
+        timerText = game.add.text(500 - 60, 35, timerString + timer, { font: '64px Chiller', fill: '#ff0000' });
         timerText.anchor.setTo(0.5, 0.5);
         timerText.visible = true;
 
-        gameText = game.add.text(game.world.centerX, game.world.centerY - 200, ' ', { font: '96px Chiller', fill: '#ff0000' });
+        gameText = game.add.text(500, game.world.centerY - 200, ' ', { font: '96px Chiller', fill: '#ff0000' });
         gameText.anchor.setTo(0.5, 0.5);
         gameText.visible = false;
 
-        stateText = game.add.text(game.world.centerX, game.world.centerY + 100, ' ', { font: '50px Chiller', fill: '#fff' });
+        stateText = game.add.text(500, game.world.centerY + 100, ' ', { font: '50px Chiller', fill: '#fff' });
         stateText.anchor.setTo(0.5, 0.5);
         stateText.visible = false;
         
@@ -391,10 +422,12 @@ window.onload = function() {
             timerText.setText(timerString + timer);
             if (playClock1) {
                 clock1.play();
+                clock1.volume = 0.8;
                 playClock1 = false;
             }
             else {
                 clock2.play();
+                clock2.volume = 0.8;
                 playClock1 = true;
             }
             //Reduce the vibility of the spritetexts over time to reduce clutter, and then make them invisible again.
@@ -468,17 +501,7 @@ window.onload = function() {
         }, null, this);
         
 
-        //Update tv to match the timer
-        if (timer <= 10) {
-            //tv.frame = 3;
-        }
-        else if (timer <= 25) {            
-            //tv.frame = 2;
-        }
-        else if (timer > 25) {            
-            //tv.frame = 1;
-        }
-
+        
         //Check for game over
         if (timer <= 0) {
             gameOver();
@@ -492,7 +515,7 @@ window.onload = function() {
     //If the player has won
     function gameWon() {
         //Clean up the screen
-        background = game.add.tileSprite(0, 0, 1000, 765, 'background2');
+        background = game.add.tileSprite(0, 0, 1350, 765, 'background2');
         game.paused = true;
         tv.kill();
         bat.kill();
@@ -503,48 +526,57 @@ window.onload = function() {
         knife.kill();
         floor.kill();
         plant.kill();
-        statusText = game.add.text(850, 25, "Status: ", { font: '42px Chiller', fill: '#00FFFF' });
+        statusText = game.add.text(1020, 25, "Status: ", { font: '42px Chiller', fill: '#00FFFF' });
         statusText.anchor.setTo(0.5, 0.5);
         statusText.visible = true;
         statusText.alpha = 0.8;
         timerString = "Time Remaining: ";
-        timerText = game.add.text(game.world.centerX , 35, timerString + timer, { font: '64px Chiller', fill: '#ff0000' });
+        timerText = game.add.text(670, 35, timerString + timer, { font: '64px Chiller', fill: '#ff0000' });
         timerText.anchor.setTo(0.5, 0.5);
         timerText.visible = true;
         gpString = "Ghost Points: ";
-        gpText = game.add.text(125, 25, gpString + gp, { font: '42px Chiller', fill: '#fff' });
+        gpText = game.add.text(295, 25, gpString + gp, { font: '42px Chiller', fill: '#fff' });
         gpText.anchor.setTo(0.5, 0.5);
         gpText.visible = true;
         gpText.alpha = 0.8;
         
 
         if (bestEnding) {
-            gameText = game.add.text(game.world.centerX, game.world.centerY - 200, 'Congratulations!', { font: '96px Chiller', fill: '#00FFFF' });
+            gameText = game.add.text(670, game.world.centerY - 260, 'Congratulations!', { font: '96px Chiller', fill: '#00FF00' });
             gameText.anchor.setTo(0.5, 0.5);
             gameText.visible = true;
-            var str = "Noticing the fire, your loved frantically \nescaped. Due to the unfortunate accident \nnothing could not be salavaged from the house, \nand your friends and family will never know the truth \nabout what really happened that night. \nThey will remember you as a gentle parent, a \ncaring spouse, and a considerate friend.";
-            stateText = game.add.text(game.world.centerX + 50, game.world.centerY + 100, str, { font: '50px Chiller', fill: '#fff' });
+            var str = "Noticing the fire, your loved one frantically \nescaped. Due to the unfortunate accident \nnothing could not be salavaged from the house, \nand your friends and family will never know the truth \nabout what really happened that night. \nThey will remember you as a gentle parent, a \ncaring spouse, and a considerate friend.";
+            stateText = game.add.text(670 + 50, game.world.centerY, str, { font: '50px Chiller', fill: '#fff' });
             stateText.anchor.setTo(0.5, 0.5);
             stateText.visible = true;
+            infoText = game.add.text(670 + 50, game.world.centerY + 300, "Congratulations! You have uncovered the best  of three endings! Try again \nto discover the other two endings!", { font: '50px Chiller', fill: '#00FF00' });
+            infoText.anchor.setTo(0.5, 0.5);
+            infoText.visible = true;
         }
         else if (neutralEnding) {
             smash.play();
-            gameText = game.add.text(game.world.centerX, game.world.centerY - 200, 'Congratulations', { font: '96px Chiller', fill: '#fff' });
+            gameText = game.add.text(670, game.world.centerY - 260, 'You Suceeded...', { font: '96px Chiller', fill: '#00FFFF' });
             gameText.anchor.setTo(0.5, 0.5);
             gameText.visible = true;
             var str = "Your loved one fled the house in fear, and \n when they returned in the morning they \nfound the television to be damaged beyond repair. \nWhile they will never know the truth of what really \nhappened on either of those fateful nights, \nwhen asked they speak of you fondly. However\n they never did visit you again...";
-            stateText = game.add.text(game.world.centerX + 50, game.world.centerY + 100, str, { font: '50px Chiller', fill: '#fff' });
+            stateText = game.add.text(670 + 50, game.world.centerY, str, { font: '50px Chiller', fill: '#FFF' });
             stateText.anchor.setTo(0.5, 0.5);
             stateText.visible = true;
+            infoText = game.add.text(670 + 50, game.world.centerY + 325, "Congrats...you have succeeded but it wasn't the cleanest cover up. This is\none of three endings, try again to discover them all!", { font: '50px Chiller', fill: '#00FFFF' });
+            infoText.anchor.setTo(0.5, 0.5);
+            infoText.visible = true;
         }
         else if (badEnding) {
-            gameText = game.add.text(game.world.centerX, game.world.centerY - 200, 'Its Over...', { font: '96px Chiller', fill: '#ff0000' });
+            gameText = game.add.text(670, game.world.centerY - 260, 'Its Over...', { font: '96px Chiller', fill: '#ff0000' });
             gameText.anchor.setTo(0.5, 0.5);
             gameText.visible = true;
             var str = "It wasn't supposed to end like this, but \n they could never be allowed to know the \nthe truth. No matter the cost. The things that I did \nthat day can never see the light of day, whether I'm\ndead or alive. This will be the last loose end\nand I'll be sure to take care of the evidence\n before morning comes.";
-            stateText = game.add.text(game.world.centerX + 50, game.world.centerY + 100, str, { font: '50px Chiller', fill: '#ff0000' });
+            stateText = game.add.text(670 + 50, game.world.centerY, str, { font: '50px Chiller', fill: '#ff0000' });
             stateText.anchor.setTo(0.5, 0.5);
             stateText.visible = true;
+            infoText = game.add.text(670 + 50, game.world.centerY + 325, "You have succeeded, but at a heavy cost. This is the least favorable ending of 3. \nTry again to discover them all!", { font: '50px Chiller', fill: '#fff' });
+            infoText.anchor.setTo(0.5, 0.5);
+            infoText.visible = true;
         }
     }
     function clickTV(sprite, pointer) {
@@ -552,29 +584,48 @@ window.onload = function() {
         if (!tvHasBeenClicked) {
             if (gp >= 2) {
                 gp += 2;
-                //sprite.alpha = 0.5;
                 timer += 2;
-                tvHasBeenClicked = true;
                 statusText.setText("Status: Got it!");
-                statusText.alpha = 0.8;
+                tvHasBeenClicked = true;
+                statusText.alpha = 0.8;+
                 gpText.setText(gpString + gp);
                 timerText.setText(timerString + timer);
                 tvText.alpha = 0.8;
+                staticSFX.play();
+                staticSFX.volume = 0.2;
             }
             else { //Not enough GP to interact
-                gp = 0;
+                //No penalty
                 gpText.setText(gpString + gp);
                 statusText.setText("Status: Ughh..not enough GP");
                 statusText.alpha = 0.7;
             }
         }
-        staticSFX.play();
-        staticSFX.volume = 0.2;
+        if (!tvHasBeenClicked2) {
+            //Add additional text to the new tv to the side
+            tv2 = game.add.text(1070, 630, "TV:", { font: "28px Chiller", fill: "#ffffff", align: "left" });
+            tv2.anchor.setTo(0.5, 0.5);
+            tvText2 = game.add.text(1200, 630, "GP Cost: 2 \nOnly thing I can do directly is \nhit a button...", { font: "20px Chiller", fill: "#ffffff", align: "left" });
+            tvText2.anchor.x = 0.5;
+            tvText2.anchor.y = 0.5;
+            tvText2.visible = true;
+        }
         tvText.visible = true;
+        tvHasBeenClicked2 = true;
     }
 
     function clickBat(sprite, pointer) {
         batText.visible = true;
+        if (!batHasBeenClicked) {
+            //Add additional text to the new bat to the side
+            bat2 = game.add.text(1070, 540, "Bat:", { font: "28px Chiller", fill: "#ffffff", align: "left" });
+            bat2.anchor.setTo(0.5, 0.5);
+            batText2 = game.add.text(1200, 540, "GP Cost: 95 \nIt'd take a lot of effort to drag \nthis...", { font: "20px Chiller", fill: "#ffffff", align: "left" });
+            batText2.anchor.x = 0.5;
+            batText2.anchor.y = 0.5;
+            batText2.visible = true;
+        }
+        batHasBeenClicked = true;
     }
 
     function smashTV(bat, tv) {
@@ -586,7 +637,10 @@ window.onload = function() {
             smash.play();
         }
         else {
-            gp = 0;
+            gp -= 20;
+            if (gp < 0) {
+                gp = 0;
+            }
             bat.position.copyFrom(bat.originalPosition);
             statusText.setText("Status: Ughh..not enough GP");
             statusText.alpha = 0.7;
@@ -596,7 +650,7 @@ window.onload = function() {
 
     function gameOver() {
         //Clean up the screen
-        background = game.add.tileSprite(0, 0, 1000, 765, 'background2');
+        background = game.add.tileSprite(0, 0, 1350, 765, 'background2');
 
         game.paused = true;
         tv.kill();
@@ -608,23 +662,23 @@ window.onload = function() {
         knife.kill();
         floor.kill();
         plant.kill();
-        statusText = game.add.text(850, 25, "Status: ", { font: '42px Chiller', fill: '#00FFFF' });
+        statusText = game.add.text(1020, 25, "Status: ", { font: '42px Chiller', fill: '#00FFFF' });
         statusText.anchor.setTo(0.5, 0.5);
         statusText.visible = true;
         statusText.alpha = 0.8;
         timerString = "Time Remaining: ";
-        timerText = game.add.text(game.world.centerX, 35, timerString + timer, { font: '64px Chiller', fill: '#ff0000' });
+        timerText = game.add.text(670, 35, timerString + timer, { font: '64px Chiller', fill: '#ff0000' });
         timerText.anchor.setTo(0.5, 0.5);
         timerText.visible = true;
         gpString = "Ghost Points: ";
-        gpText = game.add.text(125, 25, gpString + gp, { font: '42px Chiller', fill: '#fff' });
+        gpText = game.add.text(295, 25, gpString + gp, { font: '42px Chiller', fill: '#fff' });
         gpText.anchor.setTo(0.5, 0.5);
         gpText.visible = true;
         gpText.alpha = 0.8;
-        gameText = game.add.text(game.world.centerX, game.world.centerY - 200, 'GAME OVER', { font: '96px Chiller', fill: '#ff0000' });
+        gameText = game.add.text(670, game.world.centerY - 200, 'GAME OVER', { font: '96px Chiller', fill: '#ff0000' });
         gameText.anchor.setTo(0.5, 0.5);
         gameText.visible = true;
-        stateText = game.add.text(game.world.centerX + 50, game.world.centerY, 'YOU HAVE BEEN EXPOSED AND WILL FOREVER \nBE REMEMBERED AS A CRIMINAL', { font: '50px Chiller', fill: '#fff' });
+        stateText = game.add.text(670 + 50, game.world.centerY, "YOU HAVE BEEN EXPOSED AND WILL FOREVER \nBE REMEMBERED AS A CRIMINAL! \n\nThere are 3 solutions, try again to discover them all!", { font: '50px Chiller', fill: '#fff' });
         stateText.anchor.setTo(0.5, 0.5);
         stateText.visible = true;
         //stateText.setText("YOU HAVE BEEN EXPOSED AND YOU WILL BE FOREVER \nBE REMEMBERED AS A CRIMINAL");
@@ -646,13 +700,27 @@ window.onload = function() {
                 plantText.alpha = 0.8;
             }
             else { //Not enough GP to interact
-                gp = 0;
+                gp -= 3;
+                if (gp < 0) {
+                    gp = 0;
+                }
                 statusText.setText("Status: Ughh..not enough GP");
                 statusText.alpha = 0.8;
                 gpText.setText(gpString + gp);
             }
         }
+        if (!plantHasBeenClicked2) { //Make the sidebar text appear only once.
+            //Add additional text to the new plants to the side
+            plant2 = game.add.text(1070, 38, "Plant:", { font: "28px Chiller", fill: "#ffffff", align: "left" });
+            plant2.anchor.setTo(0.5, 0.5);
+            plantText2 = game.add.text(1200, 38, "GP Cost: 15 \nMaybe this'll distract him...", { font: "20px Chiller", fill: "#ffffff", align: "left" });
+            plantText2.anchor.x = 0.5;
+            plantText2.anchor.y = 0.5;
+            //plantText2.alpha = 1.0;
+            plantText2.visible = true;
+        }
         plantText.visible = true;
+        plantHasBeenClicked2 = true;
     }
 
     function clickStove(sprite, pointer) {
@@ -666,22 +734,61 @@ window.onload = function() {
                 gpText.setText(gpString + gp);
                 stoveSet = true;
                 stoveText.setText("Stove: Gas is leaking...");
+                if (!stoveHasBeenClicked2) {
+                    //Add additional text to the new stoves to the side
+                    stove2 = game.add.text(1070, 120, "Stove:", { font: "28px Chiller", fill: "#ffffff", align: "left" });
+                    stove2.anchor.setTo(0.5, 0.5);
+                    stoveText2 = game.add.text(1220, 120, "Gas is leaking...", { font: "20px Chiller", fill: "#ffffff", align: "left" });
+                    stoveText2.anchor.x = 0.5;
+                    stoveText2.anchor.y = 0.5;
+                    //stoveText2.alpha = 1.0;
+                    stoveText2.visible = true;
+                }
+                else {
+                    stoveText2.setText("Stove: Gas is leaking...");
+                }
+                stoveHasBeenClicked2 = true;
                 gas.play();
                 gas.volume = 0.1;
 
             }
             else { //Not enough GP to interact
-                gp = 0;
+                gp -= 3;
+                if (gp < 0) {
+                    gp = 0;
+                }
                 statusText.setText("Status: Ughh..not enough GP");
                 statusText.alpha = 0.8;
                 gpText.setText(gpString + gp);
             }
         }
+        if (!stoveHasBeenClicked2) {
+            //Add additional text to the new stoves to the side
+            stove2 = game.add.text(1070, 120, "Stove:", { font: "28px Chiller", fill: "#ffffff", align: "left" });
+            stove2.anchor.setTo(0.5, 0.5);
+            stoveText2 = game.add.text(1220, 120, "GP Cost: 20 \nMaybe I can make some gas leak..", { font: "20px Chiller", fill: "#ffffff", align: "left" });
+            stoveText2.anchor.x = 0.5;
+            stoveText2.anchor.y = 0.5;
+            //stoveText2.alpha = 1.0;
+            stoveText2.visible = true;
+        }
         stoveText.visible = true;
+        stoveHasBeenClicked2 = true;
     }
 
     function clickOutlet(sprite, pointer) {        
         outletText.visible = true;
+        if (!outletHasBeenClicked) {
+            //Add additional text to the new outlets to the side
+            outlet2 = game.add.text(1070, 185, "Outlet:", { font: "28px Chiller", fill: "#ffffff", align: "left" });
+            outlet2.anchor.setTo(0.5, 0.5);
+            outletText2 = game.add.text(1225, 195, "It doesn't seem like there's anything \nI can do with this directly...", { font: "20px Chiller", fill: "#ffffff", align: "left" });
+            outletText2.anchor.x = 0.5;
+            outletText2.anchor.y = 0.5;
+            // outletText2.alpha = 1.0;
+            outletText2.visible = true;
+        }
+        outletHasBeenClicked = true;
     }
 
     function clickDoor(sprite, pointer) {
@@ -699,13 +806,27 @@ window.onload = function() {
                 doorText.alpha = 0.8;
             }
             else { //Not enough GP to interact
-                gp = 0;
+                gp -= 10;
+                if (gp < 0) {
+                    gp = 0;
+                }
                 statusText.setText("Status: Ughh..not enough GP");
                 statusText.alpha = 0.8;
                 gpText.setText(gpString + gp);
             }
         }
+        if (!doorHasBeenClicked2) {
+            //Add additional text to the new door to the side
+            door2 = game.add.text(1070, 265, "Door:", { font: "28px Chiller", fill: "#ffffff", align: "left" });
+            door2.anchor.setTo(0.5, 0.5);
+            doorText2 = game.add.text(1200, 265, "GP Cost: 25 \nThis'll definitely distract him", { font: "20px Chiller", fill: "#ffffff", align: "left" });
+            doorText2.anchor.x = 0.5;
+            doorText2.anchor.y = 0.5;
+            doorText2.visible = true;
+            // doorText2.alpha = 1.0;
+        }
         doorText.visible = true;
+        doorHasBeenClicked2 = true;
     }
 
     function clickWindow(sprite, pointer) {
@@ -723,13 +844,27 @@ window.onload = function() {
                 windowText.alpha = 0.8;
             }
             else { //Not enough GP to interact
-                gp = 0;
+                gp -= 5;
+                if (gp < 0) {
+                    gp = 0;
+                }
                 statusText.setText("Status: Argh..not enough GP");
                 statusText.alpha = 0.8;
                 gpText.setText(gpString + gp);
             }
         }
+        if (!windowHasBeenClicked2) {
+            //Add additional text to the new window to the side
+            window2 = game.add.text(1070, 330, "Window:", { font: "28px Chiller", fill: "#ffffff", align: "left" });
+            window2.anchor.setTo(0.5, 0.5);
+            windowText2 = game.add.text(1200, 330, "GP Cost: 20\nThis might distract him..", { font: "20px Chiller", fill: "#ffffff", align: "left" });
+            windowText2.anchor.x = 0.5;
+            windowText2.anchor.y = 0.5;
+            windowText2.visible = true;
+            // windowText2.alpha = 1.0;
+        }
         windowText.visible = true;
+        windowHasBeenClicked2 = true;
     }
 
     function clickFloor(sprite, pointer) {
@@ -747,39 +882,88 @@ window.onload = function() {
                 floorText.alpha = 0.8
             }
             else { //Not enough GP to interact
-                gp = 0;
+                gp -= 5;
                 statusText.setText("Status: Argh..not enough GP");
                 statusText.alpha = 0.8;
                 gpText.setText(gpString + gp);
             }
         }
+        if (!floorHasBeenClicked2) {
+            //Add additional text to the new floor to the side
+            floor2 = game.add.text(1070, 395, "Floor:", { font: "28px Chiller", fill: "#ffffff", align: "left" });
+            floor2.anchor.setTo(0.5, 0.5);
+            floorText2 = game.add.text(1200, 395, "GP Cost: 25 \nThis should distract him..", { font: "20px Chiller", fill: "#ffffff", align: "left" });
+            floorText2.anchor.x = 0.5;
+            floorText2.anchor.y = 0.5;
+            floorText2.visible = true;
+            // floorText2.alpha = 1.0;
+        }
         floorText.visible = true;
+        floorHasBeenClicked2 = true;
     }
 
     function clickKnife(sprite, pointer) {
         knifeText.visible = true;
+        if (!knifeHasBeenClicked) {
+            //Add additional text to the new knife to the side
+            knife2 = game.add.text(1070, 460, "Knife:", { font: "28px Chiller", fill: "#ffffff", align: "left" });
+            knife2.anchor.setTo(0.5, 0.5);
+            knifeText2 = game.add.text(1215, 460, "GP Cost: 25 \nMaybe I can drag this somewhere..", { font: "20px Chiller", fill: "#ffffff", align: "left" });
+            knifeText2.anchor.x = 0.5;
+            knifeText2.anchor.y = 0.5;
+            knifeText2.visible = true;
+        }
+        knifeHasBeenClicked = true;
     }
 
     function smashOutlet(Sprite, outlet) {
-        if (gp >= 25 && stoveSet) {
-            electric.play();
+        if (gp >= 25 && stoveSet) {            
             victory = true;
             gameEndDelay = game.time.now + 3000;
             timer += 3;
             bestEnding = true;
         }
         else if (gp < 25) {
-            gp = 0;
+            gp -= 20;
+            if (gp < 0) {
+                gp = 0;
+            }
             knife.position.copyFrom(knife.originalPosition);
             statusText.setText("Status: Argh..not enough GP");
             statusText.alpha = 0.8;
         }
         knifeText.visible = true;
+        outletText.visible = true;
+        outletText.setText("Huh that made a pretty big spark...");
+        if (!outletHasBeenClicked) {
+            //Add additional text to the new outlets to the side
+            outlet2 = game.add.text(1070, 185, "Outlet:", { font: "28px Chiller", fill: "#ffffff", align: "left" });
+            outlet2.anchor.setTo(0.5, 0.5);
+            outletText2 = game.add.text(1225, 195, "Huh that made a pretty big spark...", { font: "20px Chiller", fill: "#ffffff", align: "left" });
+            outletText2.anchor.x = 0.5;
+            outletText2.anchor.y = 0.5;
+            // outletText2.alpha = 1.0;
+            outletText2.visible = true;
+        }
+        else {
+            outletText2.setText("Huh that made a pretty big spark...");
+        }
+        electric.play();
     }
 
     function clickPerson(sprite, pointer) {
         personText.visible = true;
-
+        if (!personHasBeenClicked) {
+            personText.alpha = 1.0;
+            //Add additional text to the new person to the side
+            person2 = game.add.text(1070, 710, "Friend:", { font: "28px Chiller", fill: "#ffffff", align: "left" });
+            person2.anchor.setTo(0.5, 0.5);
+            personText2 = game.add.text(1200, 710, "They're not responding to me \ndirectly...", { font: "20px Chiller", fill: "#ffffff", align: "left" });
+            personText2.anchor.x = 0.5;
+            personText2.anchor.y = 0.5;
+            personText2.visible = true;
+        }
+        personHasBeenClicked = true;
     }
 
     function notLikeThis(sprite, person) {
@@ -792,11 +976,14 @@ window.onload = function() {
             stab.play();
         }
         else {
-            gp = 0;
+            gp -= 20;
+            if (gp < 0) {
+                gp = 0;
+            }
             knife.position.copyFrom(knife.originalPosition);
             statusText.setText("Status: Ughh..not enough GP");
             statusText.alpha = 0.8;
-        }
+        }        
         knifeText.visible = true;
     }
 };
