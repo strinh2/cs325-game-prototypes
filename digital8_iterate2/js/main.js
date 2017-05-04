@@ -364,7 +364,7 @@ window.onload = function() {
         }, null, this);
 
         //Add text to the new knife 
-        knifeText = game.add.text(0, 0, "Knife GP Cost: 25 \nMaybe I can drag this somewhere...", { font: "20px Chiller", fill: "#00FFFF", align: "center" });
+        knifeText = game.add.text(0, 0, "Knife GP Cost: 30 \nMaybe I can drag this somewhere...", { font: "20px Chiller", fill: "#00FFFF", align: "center" });
         knife.addChild(knifeText);
         knifeText.anchor.x = 0.5;
         knifeText.anchor.y = 0.5;
@@ -593,6 +593,17 @@ window.onload = function() {
                 tvText.alpha = 0.8;
                 staticSFX.play();
                 staticSFX.volume = 0.2;
+                if (!tvHasBeenClicked2) {
+                    //Add additional text to the new tv to the side
+                    tv2 = game.add.text(1070, 630, "TV:", { font: "28px Chiller", fill: "#ffffff", align: "left" });
+                    tv2.anchor.setTo(0.5, 0.5);
+                    tvText2 = game.add.text(1200, 630, "GP Cost: 2 \nOnly thing I can do directly is \nhit a button...", { font: "20px Chiller", fill: "#ffffff", align: "left" });
+                    tvText2.anchor.x = 0.5;
+                    tvText2.anchor.y = 0.5;
+                    tvText2.visible = true;
+                }
+                tvText2.alpha = 0.7;
+                tvHasBeenClicked2 = true;
             }
             else { //Not enough GP to interact
                 //No penalty
@@ -698,6 +709,18 @@ window.onload = function() {
                 timerText.setText(timerString + timer);
                 plantSmash.play();
                 plantText.alpha = 0.8;
+                if (!plantHasBeenClicked2) { //Make the sidebar text appear only once.
+                    //Add additional text to the new plants to the side
+                    plant2 = game.add.text(1070, 38, "Plant:", { font: "28px Chiller", fill: "#ffffff", align: "left" });
+                    plant2.anchor.setTo(0.5, 0.5);
+                    plantText2 = game.add.text(1200, 38, "GP Cost: 15 \nMaybe this'll distract him...", { font: "20px Chiller", fill: "#ffffff", align: "left" });
+                    plantText2.anchor.x = 0.5;
+                    plantText2.anchor.y = 0.5;
+                    //plantText2.alpha = 1.0;
+                    plantText2.visible = true;
+                }
+                plantHasBeenClicked2 = true;
+                plantText2.alpha = 0.7;
             }
             else { //Not enough GP to interact
                 gp -= 3;
@@ -748,6 +771,7 @@ window.onload = function() {
                     stoveText2.setText("Stove: Gas is leaking...");
                 }
                 stoveHasBeenClicked2 = true;
+                stoveText2.alpha = 0.7;
                 gas.play();
                 gas.volume = 0.1;
 
@@ -804,6 +828,18 @@ window.onload = function() {
                 timerText.setText(timerString + timer);
                 knock.play();
                 doorText.alpha = 0.8;
+                if (!doorHasBeenClicked2) {
+                    //Add additional text to the new door to the side
+                    door2 = game.add.text(1070, 265, "Door:", { font: "28px Chiller", fill: "#ffffff", align: "left" });
+                    door2.anchor.setTo(0.5, 0.5);
+                    doorText2 = game.add.text(1200, 265, "GP Cost: 25 \nThis'll definitely distract him", { font: "20px Chiller", fill: "#ffffff", align: "left" });
+                    doorText2.anchor.x = 0.5;
+                    doorText2.anchor.y = 0.5;
+                    doorText2.visible = true;
+                    // doorText2.alpha = 1.0;
+                }
+                doorHasBeenClicked2 = true;
+                doorText2.alpha = 0.7;
             }
             else { //Not enough GP to interact
                 gp -= 10;
@@ -842,6 +878,18 @@ window.onload = function() {
                 timerText.setText(timerString + timer);
                 wind.play();
                 windowText.alpha = 0.8;
+                if (!windowHasBeenClicked2) {
+                    //Add additional text to the new window to the side
+                    window2 = game.add.text(1070, 330, "Window:", { font: "28px Chiller", fill: "#ffffff", align: "left" });
+                    window2.anchor.setTo(0.5, 0.5);
+                    windowText2 = game.add.text(1200, 330, "GP Cost: 20\nThis might distract him..", { font: "20px Chiller", fill: "#ffffff", align: "left" });
+                    windowText2.anchor.x = 0.5;
+                    windowText2.anchor.y = 0.5;
+                    windowText2.visible = true;
+                    // windowText2.alpha = 1.0;
+                    windowHasBeenClicked2 = true;
+                }
+                windowText2.alpha = 0.7;
             }
             else { //Not enough GP to interact
                 gp -= 5;
@@ -880,6 +928,18 @@ window.onload = function() {
                 timerText.setText(timerString + timer);
                 footstep.play();
                 floorText.alpha = 0.8
+                if (!floorHasBeenClicked2) {
+                    //Add additional text to the new floor to the side
+                    floor2 = game.add.text(1070, 395, "Floor:", { font: "28px Chiller", fill: "#ffffff", align: "left" });
+                    floor2.anchor.setTo(0.5, 0.5);
+                    floorText2 = game.add.text(1200, 395, "GP Cost: 25 \nThis should distract him..", { font: "20px Chiller", fill: "#ffffff", align: "left" });
+                    floorText2.anchor.x = 0.5;
+                    floorText2.anchor.y = 0.5;
+                    floorText2.visible = true;
+                    // floorText2.alpha = 1.0;
+                    floorHasBeenClicked2 = true;
+                }
+                floorText2.alpha = 0.7;
             }
             else { //Not enough GP to interact
                 gp -= 5;
@@ -908,7 +968,7 @@ window.onload = function() {
             //Add additional text to the new knife to the side
             knife2 = game.add.text(1070, 460, "Knife:", { font: "28px Chiller", fill: "#ffffff", align: "left" });
             knife2.anchor.setTo(0.5, 0.5);
-            knifeText2 = game.add.text(1215, 460, "GP Cost: 25 \nMaybe I can drag this somewhere..", { font: "20px Chiller", fill: "#ffffff", align: "left" });
+            knifeText2 = game.add.text(1215, 460, "GP Cost: 30 \nMaybe I can drag this somewhere..", { font: "20px Chiller", fill: "#ffffff", align: "left" });
             knifeText2.anchor.x = 0.5;
             knifeText2.anchor.y = 0.5;
             knifeText2.visible = true;
@@ -917,14 +977,14 @@ window.onload = function() {
     }
 
     function smashOutlet(Sprite, outlet) {
-        if (gp >= 25 && stoveSet) {            
+        if (gp >= 30 && stoveSet) {            
             victory = true;
             gameEndDelay = game.time.now + 3000;
             timer += 3;
             bestEnding = true;
         }
-        else if (gp < 25) {
-            gp -= 20;
+        else if (gp < 30) {
+            gp -= 5;
             if (gp < 0) {
                 gp = 0;
             }
@@ -962,12 +1022,13 @@ window.onload = function() {
             personText2.anchor.x = 0.5;
             personText2.anchor.y = 0.5;
             personText2.visible = true;
+            personText2.alpha = 0.7;
         }
         personHasBeenClicked = true;
     }
 
     function notLikeThis(sprite, person) {
-        if (gp >= 25) {
+        if (gp >= 30) {
             //play Audio
             gameEndDelay = game.time.now + 3000;
             timer += 3;
@@ -976,7 +1037,7 @@ window.onload = function() {
             stab.play();
         }
         else {
-            gp -= 20;
+            gp -= 5;
             if (gp < 0) {
                 gp = 0;
             }
